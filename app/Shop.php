@@ -22,7 +22,7 @@ class Shop extends Model {
 
   public function listings() {
     $api = resolve("\App\EtsyAPI");
-    $listings = $api->fetchListings($this->name, \App\EtsyAPI::$PAGE_LISTINGS);
+    $listings = $api->fetchListings($this->name);
     return $listings;
   }
 

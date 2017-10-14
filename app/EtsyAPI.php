@@ -9,11 +9,6 @@ class EtsyAPI
 {
     private $apiKey;
     private $secret;
-    private $name;
-    private $listings;
-    private $nextPage = null;
-    private $retrievedListings = false;
-
 
     public static $ALL_LISTINGS = "all_listings";
     public static $PAGE_LISTINGS = "page_listings";
@@ -66,22 +61,31 @@ class EtsyAPI
         return $response["results"];
     }
 
-    public function fetchListings($id, $draftsBool = false, $listingEnum="page_listings") {
+    public function fetchListings($id, $page=1, $draftsBool = false) {
       $page = 1;
-      $p = $this->getListingsPage($id, $page, $draftsBool);
+      $p = $this->fetchListingsPage($id, $page, $draftsBool);
       $results = $p->results;
-      $page = $p->pagination->next_page;
-      $this->nextPage = $page;
-      if($listingEnum == EtsyAPI::$ALL_LISTINGS) {
-        while($page) {
-          $p = $this->getListingsPage($id, $page);
-          $results = array_merge($results, $p->results);
-          $page = $p->pagination->next_page;
-        }
-        $this->nextPage = null;
-      }
       $this->listings = $results;
       return $results;
+    }
+
+    private function fetchListingsPage($id, $page, $draftsBool) {
+      $endpoint = "shops/".$id."/listings/";
+      if($draftsBool) {
+        $endpoint = $endpoint."draft";
+      }
+      else {
+        $endpoint = $endpoint."active";
+      }
+      $params = "&page=".$page."&limit=100";
+      if($draftsBool){
+        $params = [];
+        //dd($endpoint);
+        return $this->callOAuth($endpoint, $params, OAUTH_HTTP_METHOD_GET);
+      }
+      else {
+        return $this->callGet($endpoint, $params);
+      }
     }
 
     public function fetchCountries() {
@@ -104,25 +108,6 @@ class EtsyAPI
     public function fetchCountryByID($countryId) {
       $response = $this->callGet("countries/".$countryId);
       dd($response);
-    }
-
-    private function getListingsPage($id, $page, $draftsBool) {
-      $endpoint = "shops/".$id."/listings/";
-      if($draftsBool) {
-        $endpoint = $endpoint."draft";
-      }
-      else {
-        $endpoint = $endpoint."active";
-      }
-      $params = "&page=".$page."&limit=100";
-      if($draftsBool){
-        $params = [];
-        //dd($endpoint);
-        return $this->callOAuth($endpoint, $params, OAUTH_HTTP_METHOD_GET);
-      }
-      else {
-        return $this->callGet($endpoint, $params);
-      }
     }
 
     public function finalizeAuthorization($secret, $token, $verifier) {
