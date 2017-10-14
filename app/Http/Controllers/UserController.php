@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        //$this->middleware('auth');
+        $this->middleware('guest');
     }
 
     /**
@@ -27,6 +27,7 @@ class UserController extends Controller
       $credentials = $request->only("email", 'password');
       $response = $this->guard()->attempt($credentials, $request->filled('remember'));
       if($response) { return redirect('dashboard'); }
+      else { return redirect(''); }
     }
 
     public function create() {

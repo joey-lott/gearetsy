@@ -10,8 +10,14 @@ use App\Description;
 class DescriptionController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+
     public function index() {
-      $descriptions = Description::get()->all();
+      $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
       return view("description.index", ["descriptions" => $descriptions]);
     }
 

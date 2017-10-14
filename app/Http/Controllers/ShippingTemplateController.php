@@ -10,6 +10,11 @@ use App\Shop;
 class ShippingTemplateController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function create() {
       $api = resolve("\App\EtsyAPI");
       $countries = $api->fetchCountries();

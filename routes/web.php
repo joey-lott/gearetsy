@@ -22,11 +22,11 @@ Route::get('/authorize', "UserController@etsyAuthorize");
 Route::get('/authorize/complete', "UserController@completeAuthorization")->name('completeAuthorization');
 
 Route::get('dashboard', "HomeController@dashboard");
-
 Route::get('/', 'HomeController@index');
-Route::get('/signin', 'HomeController@signin');
+//Route::get('/signin', 'HomeController@signin');
 Route::get('/logout', function() {
   auth()->logout();
+  return redirect("/");
 });
 
 Route::get('/shop/find', 'ShopController@find');
