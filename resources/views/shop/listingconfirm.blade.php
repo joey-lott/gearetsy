@@ -85,6 +85,19 @@
         </select>
       </div>
     </div>
+    @if(count($variations) > 0)
+      <div class="row">
+      <?php $codes = ""; ?>
+      @foreach($variations as $variation)
+        <label class="col-sm-2">{{$variation["desc"]}}</label>
+        <div class="col-sm-10">
+          <input type="Text" class="form-control" name="{{$variation["productCode"]}}" value="{{$variation["price"]}}">
+        </div>
+        <?php $codes = $codes == "" ? $variation["productCode"] : $codes.",".$variation["productCode"]; ?>
+      @endforeach
+      <input type="hidden" name="codes" value="{{$codes}}" />
+      </div>
+    @endif
     <div class="row">
       <label class="col-sm-2"></label>
       <div class="col-sm-10"><button class="btn btn-primary">Submit Listing to Etsy as Draft</button>

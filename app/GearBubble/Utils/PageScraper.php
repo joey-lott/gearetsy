@@ -1,6 +1,6 @@
 <?php
 
-namespace App\GearBubble;
+namespace App\GearBubble\Utils;
 
 use GuzzleHttp\Client as GClient;
 use Goutte\Client;
@@ -10,6 +10,8 @@ class PageScraper {
 
   private $url;
   private $results;
+  private $products = ["20" => "11 oz",
+                       "43" => "15 oz"];
 
   public function __construct($url) {
       $this->url = $url;
@@ -48,21 +50,27 @@ class PageScraper {
         $extractedPrice = $priceMatch[0];
         $type = $crawler->filterXPath('//a[contains(@data-target, "#sizing-chart-for-style-")]')->evaluate('substring-after(@data-target, "#sizing-chart-for-style-")')[0];
 
-        $api = resolve("\App\EtsyAPI");
-        $taxonomy = $api->fetchSellerTaxonomy();
+        $variations = [];
 
-        // Get the taxonomy for Mugs. Passing this single value to the view for now.
-        // Basically, hard coding for mugs only. Will support multiple taxonomies in the future.
-        $mugId = $this->findMugTaxonomyId($taxonomy);
+        // If there are variations, the additional_style_id select element will appear on the page. In that case,
+        // extract the variations.
+        if($crawler->evaluate('count(//select[contains(@id, "additional_style_id")])')[0] > 0) {
+          $variationsCrawler = $crawler->filterXPath('//select[contains(@id, "additional_style_id")]')->children();
+          foreach($variationsCrawler as $variation) {
+            $variationPrice = $variation->getAttribute("data-cost");
+            $variationType = $variation->getAttribute("value");
+            $variations[$variationType] = ["price" => $variationPrice, "desc" => $this->products[$variationType], "productCode" => $variationType];
+          }
+        }
 
         $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
         $this->results = ["imageUrls" => $imageUrls,
                           "title" => $title,
                           "type" => $type,
                           "price" => $extractedPrice,
-                          "taxonomy" => $mugId,
                           "url" => $url,
-                          "descriptions" => $descriptions];
+                          "descriptions" => $descriptions,
+                          "variations" => $variations];
         return true;
       }
       return false;
@@ -70,19 +78,6 @@ class PageScraper {
     }
   }
 
-  private function findMugTaxonomyId($taxonomy) {
-    foreach($taxonomy as $item) {
-      if($item->name == "Mugs") {
-        return $item->id;
-      }
-      if(isset($item->children)) {
-        $mugId = $this->findMugTaxonomyId($item->children);
-        if(isset($mugId)) {
-          return $mugId;
-        }
-      }
-    }
-  }
 
 
 }

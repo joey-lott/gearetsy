@@ -4,6 +4,9 @@ namespace App;
 
 use GuzzleHttp\Client;
 use \OAuth;
+use App\Etsy\Models\ListingProduct;
+use App\Etsy\Models\ListingOffering;
+use App\Etsy\Models\ListingInventory;
 
 class EtsyAPI
 {
@@ -229,7 +232,19 @@ class EtsyAPI
       return $response["results"][0];
     }
 
+    public function fetchInventory($listingId) {
+      $inventory = $this->callOAuth("listings/".$listingId."/inventory", null, OAUTH_HTTP_METHOD_GET);
+      return $inventory;
+    }
+
+    public function fetchTaxonomyProperties($taxonomyId) {
+      $properties = $this->callOAuth("taxonomy/seller/".$taxonomyId."/properties", null, OAUTH_HTTP_METHOD_GET);
+      return $properties["results"];
+    }
+
     public function createListing($request) {
+
+      //$inventory = new ListingInventory();
       $formData = [
         "quantity" => "999",
         "title" => $request->title,
@@ -250,6 +265,8 @@ class EtsyAPI
 
       $listing = $response["results"][0];
       $listingId = $listing["listing_id"];
+
+
 
       // Upload the two images for the mug. This will break if there are not two images.
       $this->uploadImage($listingId, $request->image1);
