@@ -17,6 +17,10 @@ class TaxonomyPropertyCollection {
     return $tpc;
   }
 
+  public function addTaxonomyProperty($tp) {
+    array_push($this->properties, $tp);
+  }
+
   public function filter($enum) {
     $tpc = new TaxonomyPropertyCollection;
     switch ($enum) {

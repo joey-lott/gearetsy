@@ -6,17 +6,51 @@ namespace App\GearBubble\Utils;
 class ProductTypes {
 
 
-  private $products = ["20" => ["name" => "mug", "variation" => "11 oz", "scale" => "Fluid ounces"],
-                       "43" => ["name" => "mug", "variation" => "15 oz"]
+  private $products = ["20" => ["category" => "mugs", "variation" => "11 oz", "value" => "11"],
+                       "43" => ["category" => "mugs", "variation" => "15 oz", "value" => "15"]
                       ];
 
   private $categories = ["mugs" => ["scale" => "Fluid ounces", "variationProperty" => "Volume"]
                         ];
 
-  public function getVariationPropertyForCategory($cat) {
+  public function getVariationPropertyForCategoryName($cat) {
     foreach($this->categories as $category => $value) {
       if($category == $cat) {
         return $value["variationProperty"];
+      }
+    }
+  }
+
+  public function getScaleForCategoryName($cat) {
+    foreach($this->categories as $category => $value) {
+      if($category == $cat) {
+        return $value["scale"];
+      }
+    }
+  }
+
+  public function getCategoryForProductId($id) {
+    foreach($this->products as $productId => $data) {
+      if($productId == $id) {
+        return $data["category"];
+      }
+    }
+  }
+
+  public function getVariationPropertyForProductId($id) {
+    $category = $this->getCategoryForProductId($id);
+    return $this->getVariationPropertyForCategoryName($category);
+  }
+
+  public function getScaleForProductId($id) {
+    $category = $this->getCategoryForProductId($id);
+    return $this->getScaleForCategoryName($category);
+  }
+
+  public function getValueForProductId($id) {
+    foreach($this->products as $productId => $data) {
+      if($productId == $id) {
+        return $data["value"];
       }
     }
   }

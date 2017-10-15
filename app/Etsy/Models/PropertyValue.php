@@ -2,9 +2,9 @@
 
 namespace App\Etsy\Models;
 
-use App\Etsy\Models;
+use App\Etsy\Models\EtsyModel;
 
-class PropertyValue {
+class PropertyValue extends EtsyModel {
 
   public $property_id;
   public $property_name;
@@ -17,6 +17,12 @@ class PropertyValue {
     $this->property_id = $id;
     $this->scale_id = $sid;
     $this->values = $vs;
+  }
+
+  public function jsonSerialize() {
+    return ["property_id" => $this->property_id,
+            "scale_id" => $this->scale_id,
+            "values" => $this->values];
   }
 
 }

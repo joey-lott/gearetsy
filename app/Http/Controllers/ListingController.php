@@ -10,6 +10,10 @@ use App\Description;
 use App\GearBubble\Utils\PageScraper;
 use App\GearBubble\Utils\ProductTypes;
 use App\Etsy\Models\TaxonomyPropertyCollection;
+use App\Etsy\Models\ListingOffering;
+use App\Etsy\Models\ListingInventory;
+use App\Etsy\Models\ListingProduct;
+use App\Etsy\Models\PropertyValue;
 
 class ListingController extends Controller
 {
@@ -54,7 +58,7 @@ class ListingController extends Controller
         return view("shop.listingconfirm", $results);
       }
       else {
-        $error = "The URL you provided is not a valid campaign or GearBubble is currently unaccessible.";
+        $error = "The URL you provided is not a valid campaign or GearBubble is currently inaccessible.";
       }
       return redirect()->back()->withErrors(["error" => $error]);
     }
@@ -97,22 +101,66 @@ class ListingController extends Controller
         $tpc = TaxonomyPropertyCollection::createFromAPIResponse($tprops);
 
         $pt = new ProductTypes;
-        dd($pt->getVariationPropertyForCategory("mugs"));
 
-        // For now, I'll only support mug variations. And specifically, I'm only going to
-        // support volume variations.
-        $volume = $tpc->propertyByName("Volume");
+        $products = [];
 
-        // Volume for mugs is by fluid ounces. So we're only interested in that for now.
-        $ozScale = $volume->getScaleByName("Fluid ounces");
+        // The product codes are GB-specific codes pass through from the results of the screen scraping.
+        // The form has a hidden field with a comma-delimited list of the codes. Split them into an array here.
+        $productCodes = explode(",", $request->codes);
 
-        // For now, just support two volume variations: 11 oz and 15 oz.
-        $var11oz = new PropertyValue($volume->name, $ozScale->scale_id, [11]);
-        $var15oz = new PropertyValue($volume->name, $ozScale->scale_id, [15]);
+        // There is one product code for each variation. For example, 20 and 43 are white mugs, 11 oz and 15 oz. So
+        // for each product code there will be one variation.
+        foreach($productCodes as $productCode) {
 
-        //$o11oz = new ListingOffering()
+          // The property name is the something like "Volume" or "Size". These are specific
+          // to Etsy. I need a way to map GB products to Etsy variation types (eg. mugs
+          // will have a Volume variation for Etsy). So I'm mapping the variation property name
+          // to the product codes in ProductTypes.
+          $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
 
-        dd($response->variations);
+          // As with property, I also map Etsy-specific scales to GB product types. A scale
+          // is something like "Fluid ounces" or "Milliliters".
+          $scaleName = $pt->getScaleForProductId($productCode);
+
+          // The value is specific to a product code from GB. For example, GB code
+          // 20 is an 11 oz mug. The value is 11. That is because Etsy will need a numeric
+          // value. So I'm keeping the values in the ProductTypes map as well.
+          $val = $pt->getValueForProductId($productCode);
+
+          // The price for each variation is determined by what the user inputs in the form.
+          // The form inputs are named the same as the product codes. So I can grab the value
+          // from the $request.
+          $variationPrice = $request[$productCode];
+
+          // An offering contains the price of the variation.
+          $offering = new ListingOffering($variationPrice);
+
+          // The variation property is a TaxonomyProperty object. I need this to get the
+          // property ID to pass to the PropertyValue object.
+          $variationProperty = $tpc->propertyByName($variationPropertyName);
+
+          // The scale is a TaxonomyPropertyScale object. I need this to get the
+          // scale ID to pass to the PropertyValue object.
+          $scale = $variationProperty->getScaleByName($scaleName);
+
+          // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
+          $propVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+
+          // The listing product contains the property value and the offering.
+          $listingProduct = new ListingProduct([$propVal], [$offering]);
+
+          // Add the listing product to the array of variations. This is what I'll pass to Etsy.
+          array_push($products, $listingProduct);
+
+        }
+
+        // Etsy does not have a method for creating inventory. But once can update the inventory for an existing listing.
+        // Here, pass the json-encoded array of products to the updateInventory method along with the listing ID and the ID of
+        // the property that varies the price on the listing. I'm assuming that there is only one variation for now. In the
+        // future, there may be multiple variations, and I'll need to handle this better. (For example, shirts can have
+        // variations in size, color, and style)
+        $response = $api->updateInventory($listing["listing_id"], json_encode($products), $variationProperty->property_id);
+
       }
       // Redirect to the starting point for listing. This does two things:
       // 1. It prevents a refresh from resubmitting and creating a duplicate listing

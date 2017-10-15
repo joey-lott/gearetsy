@@ -36,6 +36,7 @@
         <input type="text" name="type" class="form-control" value="{{$type}}">
       </div>
     </div-->
+    <input type="hidden" name="productId" class="form-control" value="{{$type}}">
     <div class="form-group row">
       <label class="col-sm-1">Price:</label>
       <label class="col-sm-1 text-sm-right">$</label>

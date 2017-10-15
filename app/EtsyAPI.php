@@ -275,6 +275,11 @@ class EtsyAPI
       return $listing;
     }
 
+    public function updateInventory($listingId, $inventory, $priceOnProperty) {
+      $formData = ["products" => $inventory, "price_on_property" => $priceOnProperty];
+      return $this->callOAuth("listings/".$listingId."/inventory", $formData, OAUTH_HTTP_METHOD_PUT);
+    }
+
     private function callGet($endpoint, $params="") {
       $client = new Client;
       $response = $client->request("GET", "https://openapi.etsy.com/v2/".$endpoint."?api_key=".$this->apiKey."".$params);
@@ -290,7 +295,6 @@ class EtsyAPI
       }
       $url = "https://openapi.etsy.com/v2/".$endpoint;
       try{
-        //dd($params);
         if(count($params) == 0) {$params = null;}
         $response = $oauth->fetch($url, $params, $method);
         $json = $oauth->getLastResponse();
