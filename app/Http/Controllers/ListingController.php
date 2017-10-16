@@ -33,6 +33,9 @@ class ListingController extends Controller
     // such as tags, description, etc.
     public function confirm() {
 
+      // If the url is passed through the form, use that value. But in the case
+      // of a failed validation, the user will be redirected back here. In that case
+      // the url is flashed to the session.
       if(!isset(request()->url)) {
         $url = session('url');
       }
@@ -40,27 +43,37 @@ class ListingController extends Controller
         $url = request()->url;
       }
 
+      // Use a page scraper to gather the information from the GB campaign page.
       $scraper = new PageScraper($url);
+
+      // The scrape() method returns a boolean indicating whether it was successful in scraping the campaign
       if($scraper->scrape()) {
+
+        // The results come back as an array of the campaign data scraped.
         $results = $scraper->getResults();
 
         $api = resolve("\App\EtsyAPI");
+
+        // Get the shipping templates for this user.
         $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
 
+        // Get the seller taxonomy.
         $taxonomy = $api->fetchSellerTaxonomy();
 
         // Get the taxonomy for Mugs. Passing this single value to the view for now.
         // Basically, hard coding for mugs only. Will support multiple taxonomies in the future.
         $taxonomyId = $this->findMugTaxonomyId($taxonomy);
 
+        // Insert the taxonomy ID and the shipping templates into the results to pass along to the view.
         $results["taxonomy"] = $taxonomyId;
         $results["shippingTemplates"] = $shippingTemplates;
+
         return view("shop.listingconfirm", $results);
       }
       else {
         $error = "The URL you provided is not a valid campaign or GearBubble is currently inaccessible.";
+        return redirect()->back()->withErrors(["error" => $error]);
       }
-      return redirect()->back()->withErrors(["error" => $error]);
     }
 
     private function findMugTaxonomyId($taxonomy) {
@@ -77,6 +90,7 @@ class ListingController extends Controller
       }
     }
 
+    // Submit the new listing to Etsy, get the new listing record back.
     public function submit(Request $request) {
       $validator = validator()->make($request->all(), [
         "title" => "required",
@@ -86,6 +100,7 @@ class ListingController extends Controller
       if($validator->fails()) {
         return redirect()->back()->withErrors($validator)->with(["url" => $request->url]);
       }
+
       $api = resolve("\App\EtsyAPI");
       $listing = $api->createListing($request);
 

@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest', ["only" => ["login", "create", "store"]]);
     }
 
     /**
@@ -41,7 +41,7 @@ class UserController extends Controller
       ]);
       $user = User::create(["email" => $request->email, "password" => bcrypt($request->password)]);
       $this->guard()->login($user);
-      return redirect('/authorize');
+      return redirect('/dashboard');
     }
 
     public function etsyAuthorize() {

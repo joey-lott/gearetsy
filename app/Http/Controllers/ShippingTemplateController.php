@@ -15,6 +15,7 @@ class ShippingTemplateController extends Controller
         $this->middleware('auth');
     }
 
+    // Display the new shipping template form.
     public function create() {
       $api = resolve("\App\EtsyAPI");
       $countries = $api->fetchCountries();
@@ -22,6 +23,7 @@ class ShippingTemplateController extends Controller
       return view("shipping.newtemplate", ["countries" => $countries, "regions" => $regions]);
     }
 
+    // Submit the new template to Etsy. Get the new record and return it.
     public function submit(Request $request) {
         $this->validate($request, [
           "title" => "required",
@@ -36,6 +38,7 @@ class ShippingTemplateController extends Controller
         return redirect("/shippingtemplate")->with(["message" => "Shipping template created successfully"]);
     }
 
+    // Update an existing template on Etsy.
     public function update($id, Request $request) {
         $this->validate($request, [
           "title" => "required",
@@ -50,12 +53,14 @@ class ShippingTemplateController extends Controller
         return redirect("/shippingtemplate")->with(["message" => "Shipping template updated successfully"]);
     }
 
+    // Display a list of the existing templates.
     public function list() {
       $api = resolve("\App\EtsyAPI");
       $list = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
       return view("shipping.templatelist", ["list" => $list]);
     }
 
+    // View a particular template for editing.
     public function view($id) {
       $template = $this->api()->fetchShippingTemplateById($id);
       $entries = $this->api()->fetchShippingTemplateEntries($id);

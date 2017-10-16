@@ -18,17 +18,19 @@ class ShopController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // This was previously a manual step requiring the user to enter his Etsy shop name.
+    // However, I since realized that I could retreive the shop ID for the current user using
+    // Etsy's magic __SELF__ token. SO this is now automated.
     public function find()
     {
       $api = resolve("\App\EtsyAPI");
+
+      // Get the shop ID for the current user.
       $shop = $api->fetchShopCurrentUser();
       $shopId = $shop["shop_id"];
       $etsyUserId = $shop["user_id"];
+
+      // Assign the shop ID and Etsy user ID to the curent user and save to DB.
       $user = auth()->user();
       $user->shopId = $shopId;
       $user->etsyUserId = $etsyUserId;
@@ -36,6 +38,8 @@ class ShopController extends Controller
       return view("shop.shopnameform", ["shopName" => $shop["shop_name"]]);
     }
 
+/*
+// This method no longer needed.
     public function confirmStore(Request $request) {
       $shopId = session("shopId");
       $userId = session("userId");
@@ -45,7 +49,10 @@ class ShopController extends Controller
       $user->save();
       return redirect("dashboard");
     }
+*/
 
+/*
+// This method is no longer needed
     public function confirm(Request $request) {
       // Verify that the shop name has been passed from
       // the form.
@@ -68,7 +75,10 @@ class ShopController extends Controller
         return view('shop.confirm', ["shopName" => $fetchedShop->shop_name, "url" => $fetchedShop->url, "image" => $fetchedShop->icon_url_fullxfull]);
       }
     }
+*/
 
+/*
+// This method is no longer needed
     public function dashboard($id) {
       $api = resolve("\App\EtsyAPI");
       $listings = $api->fetchListings($id);
@@ -76,5 +86,5 @@ class ShopController extends Controller
       // $listings = $shop->listings();
       dd($listings);
     }
-
+*/
 }
