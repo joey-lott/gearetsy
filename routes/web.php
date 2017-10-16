@@ -15,6 +15,10 @@ use App\User;
 
 Auth::routes();
 
+Route::get('/test', function() {
+  dd(phpinfo());
+});
+
 Route::post('/login', "UserController@login")->name('login');
 Route::get('/register', "UserController@create");
 Route::post('/register', "UserController@store")->name('register');
