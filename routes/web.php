@@ -42,9 +42,10 @@ Route::post('/listing/confirm', 'ListingController@confirm');
 Route::post('/listing/submit', 'ListingController@submit');
 
 Route::get('shippingtemplate/create', 'ShippingTemplateController@create');
-Route::post('shippingtemplate/submit', 'ShippingTemplateController@submit');
-Route::get('shippingtemplate/list', 'ShippingTemplateController@list');
+Route::post('shippingtemplate', 'ShippingTemplateController@submit');
+Route::get('shippingtemplate', 'ShippingTemplateController@list');
 Route::get('shippingtemplate/{id}', 'ShippingTemplateController@view');
+Route::post('shippingtemplate/{id}', 'ShippingTemplateController@update');
 Route::get('shippingtemplate/entry/{id}', 'ShippingTemplateController@entryView');
 
 Route::get('description/create', 'DescriptionController@create');

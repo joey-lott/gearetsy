@@ -141,6 +141,11 @@ class EtsyAPI
       return $response["login_url"];
     }
 
+    public function fetchShippingTemplateById($id) {
+      $template = $this->callOAuth("shipping/templates/".$id, null, OAUTH_HTTP_METHOD_GET);
+      return (object) $template["results"][0];
+    }
+
     public function createShippingTemplate($request) {
       // create the shipping template that has both U.S> origin and destination.
       // Primary and secondary cost are equal (no shipping breaks for multiple items).
@@ -149,11 +154,11 @@ class EtsyAPI
         "origin_country_id" => $request->origin_country_id,
         "primary_cost" => $request->ww_cost,
         "secondary_cost" => $request->ww_cost,
+        "min_processing_days" => $request->min_processing_days,
+        "max_processing_days" => $request->max_processing_days,
         ];
         // Etsy is returning an error when supplying these values. But should
         // include these.
-        // "min_processing_days" => $request->min_processing_days,
-        // "min_processing_days" => $request->max_processing_days,
         $response = $this->callOAuth("shipping/templates", $formData);
         $templateId = $response["results"][0]["shipping_template_id"];
         // Create a template entry for Canada
@@ -163,9 +168,33 @@ class EtsyAPI
         // Create a template entry for US
         $countryId = $this->fetchCountryIDByISO("US");
         $data = ["destination_country_id" => $countryId, "cost" => $request->us_cost];
-        $this->createShippingTemplateEntry($templateId, $data);
+        $template = $this->createShippingTemplateEntry($templateId, $data);
+        return $template;
+    }
 
-        dd($response);
+    public function updateShippingTemplate($id, $request) {
+      // create the shipping template that has both U.S> origin and destination.
+      // Primary and secondary cost are equal (no shipping breaks for multiple items).
+      $formData = [
+        "title" => $request->title,
+        "origin_country_id" => $request->origin_country_id,
+        "min_processing_days" => $request->min_processing_days,
+        "max_processing_days" => $request->max_processing_days,
+        "shipping_template_id" => $id
+        ];
+        // Etsy is returning an error when supplying these values. But should
+        // include these.
+        $response = $this->callOAuth("shipping/templates/".$id, $formData, OAUTH_HTTP_METHOD_PUT);
+
+        // Create a template entry for Canada
+        $countryId = $this->fetchCountryIDByISO("CA");
+        $data = ["destination_country_id" => $countryId, "cost" => $request->ca_cost];
+        $this->updateShippingTemplateEntry($request->ca_entry_id, $id, $data);
+        // Create a template entry for US
+        $countryId = $this->fetchCountryIDByISO("US");
+        $data = ["destination_country_id" => $countryId, "cost" => $request->us_cost];
+        $this->updateShippingTemplateEntry($request->us_entry_id, $id, $data);
+
     }
 
     public function fetchCountryIDByISO($iso) {
@@ -183,6 +212,21 @@ class EtsyAPI
         "secondary_cost" => $request["cost"],
         ];
         $response = $this->callOAuth("shipping/templates/entries", $formData);
+        return $response;
+    }
+
+    public function updateShippingTemplateEntry($entryId, $templateId, $request) {
+      // create the shipping template that has both U.S> origin and destination.
+      // Primary and secondary cost are equal (no shipping breaks for multiple items).
+      $formData = [
+        "shipping_template_entry_id" => $entryId,
+        "destination_country_id" => $request["destination_country_id"],
+        "primary_cost" => $request["cost"],
+        "secondary_cost" => $request["cost"],
+        "shipping_template_id" => $templateId
+        ];
+
+        $response = $this->callOAuth("shipping/templates/entries/".$entryId, $formData, OAUTH_HTTP_METHOD_PUT);
         return $response;
     }
 
@@ -302,6 +346,8 @@ class EtsyAPI
         return $obj;
       }
       catch(\OAuthException $e) {
+        dump($url);
+        dump($params);
         dd($e);
       }
     }

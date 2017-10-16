@@ -23,7 +23,7 @@
       <a href="/shippingtemplate/create">Create a new shipping template</a>
     </div>
     <div>
-      <a href="/shippingtemplate/list">view shipping templates</a>
+      <a href="/shippingtemplate">view shipping templates</a>
     </div>
     <div>
       <a href="/authorize">reauthorize</a>
