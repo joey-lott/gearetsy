@@ -134,6 +134,7 @@ class EtsyAPI
     public function getEtsyAuthorizeLink() {
       $a = $this->apiKey;
       $b = $this->secret;
+      dd($a);
       $oauth = new \OAuth($this->apiKey, $this->secret);
       $response = $oauth->getRequestToken("https://openapi.etsy.com/v2/oauth/request_token?scope=listings_w%20listings_r", route("completeAuthorization"));
 //      dd($response);

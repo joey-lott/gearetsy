@@ -48,7 +48,8 @@ class UserController extends Controller
       $user = new User;
       $user->email = "email";
       $user->password = "password";
-      $etsyLink = resolve("\App\EtsyAPI")->getEtsyAuthorizeLink();
+      $api = resolve("\App\EtsyAPI");
+      $etsyLink = $api->getEtsyAuthorizeLink();
       return view('auth.authorizeEtsy', ["etsyLink" => $etsyLink]);
     }
 
