@@ -134,12 +134,16 @@ class EtsyAPI
     public function getEtsyAuthorizeLink() {
       $a = $this->apiKey;
       $b = $this->secret;
-      dd($a);
+
       $oauth = new \OAuth($this->apiKey, $this->secret);
-      $response = $oauth->getRequestToken("https://openapi.etsy.com/v2/oauth/request_token?scope=listings_w%20listings_r", route("completeAuthorization"));
-//      dd($response);
-      setcookie("token_secret", $response["oauth_token_secret"]);
-      return $response["login_url"];
+      try {
+        $response = $oauth->getRequestToken("https://openapi.etsy.com/v2/oauth/request_token?scope=listings_w%20listings_r", route("completeAuthorization"));
+        setcookie("token_secret", $response["oauth_token_secret"]);
+        return $response["login_url"];
+      }
+      catch (\OAuthException $e) {
+        dd($e);
+      }
     }
 
     public function fetchShippingTemplateById($id) {
