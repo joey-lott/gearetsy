@@ -10,13 +10,7 @@
 </div>
 <div class="panel-body">
   <div class="well">
-    @if($errors->any())
-      <div class="alert alert-danger">
-        @foreach($errors->all() as $error)
-          <div><strong>error:</strong> {{$error}}</div>
-        @endforeach
-      </div>
-    @endif
+    @include("layouts.errors")
     <form method="POST" action="/listing/confirm">
       {{csrf_field()}}
       <div class="row">

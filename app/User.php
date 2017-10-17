@@ -3,9 +3,13 @@
 namespace App;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Notifications\ResetPassword;
 
-class User extends Model implements Authenticatable {
+class User extends Model implements Authenticatable, CanResetPassword {
+
+  use \Illuminate\Notifications\Notifiable;
 
   protected $fillable = ["email", "password"];
 
@@ -65,6 +69,14 @@ class User extends Model implements Authenticatable {
    */
   public function getRememberTokenName() {
     return "rememberToken";
+  }
+
+  public function getEmailForPasswordReset() {
+    return $this->email;
+  }
+
+  public function sendPasswordResetNotification($token) {
+        $this->notify(new ResetPassword($token));
   }
 
 }
