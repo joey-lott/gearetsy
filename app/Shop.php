@@ -21,7 +21,7 @@ class Shop extends Model {
   }
 
   public function listings() {
-    $api = resolve("\App\EtsyAPI");
+    $api = resolve("\App\Etsy\EtsyAPI");
     $listings = $api->fetchListings($this->name);
     return $listings;
   }

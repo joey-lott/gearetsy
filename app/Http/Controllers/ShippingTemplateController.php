@@ -17,7 +17,7 @@ class ShippingTemplateController extends Controller
 
     // Display the new shipping template form.
     public function create() {
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
       $countries = $api->fetchCountries();
       $regions = $api->fetchRegions();
       return view("shipping.newtemplate", ["countries" => $countries, "regions" => $regions]);
@@ -33,7 +33,7 @@ class ShippingTemplateController extends Controller
           "min_production_time" => "numeric",
           "max_production_time" => "numeric"
         ]);
-        $api = resolve("\App\EtsyAPI");
+        $api = resolve("\App\Etsy\EtsyAPI");
         $api->createShippingTemplate($request);
         return redirect("/shippingtemplate")->with(["message" => "Shipping template created successfully"]);
     }
@@ -48,14 +48,14 @@ class ShippingTemplateController extends Controller
           "min_production_time" => "numeric",
           "max_production_time" => "numeric",
         ]);
-        $api = resolve("\App\EtsyAPI");
+        $api = resolve("\App\Etsy\EtsyAPI");
         $api->updateShippingTemplate($id, $request);
         return redirect("/shippingtemplate")->with(["message" => "Shipping template updated successfully"]);
     }
 
     // Display a list of the existing templates.
     public function list() {
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
       $list = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
       return view("shipping.templatelist", ["list" => $list]);
     }
@@ -85,7 +85,7 @@ class ShippingTemplateController extends Controller
     }
 
     private function api() {
-      return resolve("\App\EtsyAPI");
+      return resolve("\App\Etsy\EtsyAPI");
     }
 
 }

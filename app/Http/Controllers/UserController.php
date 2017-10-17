@@ -48,7 +48,7 @@ class UserController extends Controller
       $user = new User;
       $user->email = "email";
       $user->password = "password";
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
       $etsyLink = $api->getEtsyAuthorizeLink();
       return view('auth.authorizeEtsy', ["etsyLink" => $etsyLink]);
     }
@@ -57,11 +57,11 @@ class UserController extends Controller
       $tokenSecret = $_COOKIE['token_secret'];
       $token = $_GET['oauth_token'];
       $verifier = $_GET['oauth_verifier'];
-      $response = resolve("\App\EtsyAPI")->finalizeAuthorization($tokenSecret, $token, $verifier);
+      $api = resolve("\App\Etsy\EtsyAPI");
+      $response = $api->finalizeAuthorization($tokenSecret, $token, $verifier);
       if($response) {
         $user = auth()->user();
         if($user->shopId) {
-          // If the shop ID is not set, direct user to select shop
           return redirect("/dashboard");
         }
         else {

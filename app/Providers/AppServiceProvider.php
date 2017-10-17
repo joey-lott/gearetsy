@@ -27,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
       // be necessary. It may not need to be instantiated at all.
       // Perhaps all methods should be made static in a future
       // refactor.
-      \App::singleton("\App\EtsyAPI", function() {
-        return new \App\EtsyAPI(env('API_KEY'), env('API_SECRET'));
+      \App::singleton("\App\Etsy\EtsyAPI", function() {
+        return new \App\Etsy\EtsyAPI(env('API_KEY'), env('API_SECRET'));
       });
     }
 }

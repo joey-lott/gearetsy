@@ -23,7 +23,7 @@ class ShopController extends Controller
     // Etsy's magic __SELF__ token. SO this is now automated.
     public function find()
     {
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
 
       // Get the shop ID for the current user.
       $shop = $api->fetchShopCurrentUser();
@@ -60,7 +60,7 @@ class ShopController extends Controller
         "shop_name" => "required"
       ]);
 
-      $shopFromAPI = resolve("\App\EtsyAPI");
+      $shopFromAPI = resolve("\App\Etsy\EtsyAPI");
       $fetchedShop = $shopFromAPI->fetchShop($request->shop_name);
 
       // If no shop (consider refactoring to try/catch with fetchShop() throwing exception)
@@ -80,7 +80,7 @@ class ShopController extends Controller
 /*
 // This method is no longer needed
     public function dashboard($id) {
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
       $listings = $api->fetchListings($id);
       // $shop = Shop::where("name", "=", $id)->first();
       // $listings = $shop->listings();

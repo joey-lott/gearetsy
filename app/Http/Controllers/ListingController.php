@@ -52,7 +52,7 @@ class ListingController extends Controller
         // The results come back as an array of the campaign data scraped.
         $results = $scraper->getResults();
 
-        $api = resolve("\App\EtsyAPI");
+        $api = resolve("\App\Etsy\EtsyAPI");
 
         // Get the shipping templates for this user.
         $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
@@ -101,7 +101,7 @@ class ListingController extends Controller
         return redirect()->back()->withErrors($validator)->with(["url" => $request->url]);
       }
 
-      $api = resolve("\App\EtsyAPI");
+      $api = resolve("\App\Etsy\EtsyAPI");
       $listing = $api->createListing($request);
 
       // The codes hidden field is only generated in the case of variations. So
