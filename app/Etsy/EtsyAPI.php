@@ -291,37 +291,36 @@ class EtsyAPI
       return $properties["results"];
     }
 
-    public function createListing($request) {
+    public function createListing($listing) {
 
       //$inventory = new ListingInventory();
       $formData = [
-        "quantity" => "999",
-        "title" => $request->title,
-        "description" => $request->description,
-        "price" => $request->price,
-        "taxonomy_id" => $request->taxonomy_id,
-        "tags" => $request->tags,
-        "who_made" => "i_did",
-        "when_made" => "made_to_order",
-        "state" => "draft",
-        "is_supply" => "false",
-        "shipping_template_id" => $request->shippingTemplateId,
-        "processing_min" => 7,
-        "processing_max" => 14
+        "quantity" => $listing->quantity,
+        "title" => $listing->title,
+        "description" => $listing->description,
+        "price" => $listing->price,
+        "taxonomy_id" => $listing->taxonomy_id,
+        "tags" => $listing->tags,
+        "who_made" => $listing->who_made,
+        "when_made" => $listing->when_made,
+        "state" => $listing->state,
+        "is_supply" => $listing->is_supply,
+        "shipping_template_id" => $listing->shipping_template_id,
+        "processing_min" => $listing->processing_min,
+        "processing_max" => $listing->processing_max
         ];
 
       $response = $this->callOAuth("listings", $formData);
 
-      $listing = $response["results"][0];
-      $listingId = $listing["listing_id"];
+      $listingRecord = $response["results"][0];
+      $listingId = $listingRecord["listing_id"];
 
 
+      foreach($listing->imagesToAddFromUrl as $imageUrl) {
+        $this->uploadImage($listingId, $imageUrl);
+      }
 
-      // Upload the two images for the mug. This will break if there are not two images.
-      $this->uploadImage($listingId, $request->image1);
-      $this->uploadImage($listingId, $request->image2);
-
-      return $listing;
+      return $listingRecord;
     }
 
     public function updateInventory($listingId, $inventory, $priceOnProperty) {

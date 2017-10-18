@@ -8,6 +8,9 @@
   </div>
 </div>
 <div class="panel-body">
+  <div class="row">
+    <a href="/shippingtemplate/create" class="btn btn-primary">+ Create New</a>
+  </div>
   @include("layouts.message")
   <div>Here are your shipping templates. Click on one to edit it</div>
   @include("layouts.errors")  @foreach($list as $template)

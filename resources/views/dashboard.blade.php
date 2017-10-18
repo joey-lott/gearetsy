@@ -14,19 +14,10 @@
       <a href="/listing/create">Create a new listing</a>
     </div>
     <div>
-      <a href="/description">Edit product descriptions</a>
+      <a href="/description">Product descriptions</a>
     </div>
     <div>
-      <a href="/description/create">Create a new product description</a>
-    </div>
-    <div>
-      <a href="/shippingtemplate/create">Create a new shipping template</a>
-    </div>
-    <div>
-      <a href="/shippingtemplate">view shipping templates</a>
-    </div>
-    <div>
-      <a href="/authorize">reauthorize</a>
+      <a href="/shippingtemplate">Shipping templates</a>
     </div>
   </div>
 </div>

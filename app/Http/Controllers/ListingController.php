@@ -14,6 +14,7 @@ use App\Etsy\Models\ListingOffering;
 use App\Etsy\Models\ListingInventory;
 use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\PropertyValue;
+use App\Etsy\Models\Listing;
 
 class ListingController extends Controller
 {
@@ -90,19 +91,31 @@ class ListingController extends Controller
       }
     }
 
+    private function extractFirstPrice($request) {
+      $productCodes = explode(",", $request->codes);
+      $firstPrice = $request[$productCodes[0]];
+      return $firstPrice;
+    }
+
     // Submit the new listing to Etsy, get the new listing record back.
     public function submit(Request $request) {
       $validator = validator()->make($request->all(), [
         "title" => "required",
-        "price" => "required|numeric",
         "description" => "required"
       ]);
       if($validator->fails()) {
         return redirect()->back()->withErrors($validator)->with(["url" => $request->url]);
       }
 
+
+      $listing = new Listing($request->title, $request->description, $this->extractFirstPrice($request), $request->taxonomy_id, $request->tags, $request->shippingTemplateId);
+      $i = 1;
+      while(isset($request["image".$i])) {
+        $listing->addImageUrl($request["image".$i]);
+        $i++;
+      }
       $api = resolve("\App\Etsy\EtsyAPI");
-      $listing = $api->createListing($request);
+      $listing = $api->createListing($listing);
 
       // The codes hidden field is only generated in the case of variations. So
       // test for its existence. And if so, create variations.
