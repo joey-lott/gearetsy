@@ -6,6 +6,7 @@ use GuzzleHttp\Client as GClient;
 use Goutte\Client;
 use App\Description;
 use App\GearBubble\Models\PrimaryVariation;
+use App\GearBubble\Models\Campaign;
 
 class PageScraper {
 
@@ -27,7 +28,7 @@ class PageScraper {
       $this->url = $url;
   }
 
-  public function getResults() {
+  public function getCampaign() {
     return $this->results;
   }
 
@@ -120,22 +121,26 @@ class PageScraper {
 // Image URL format: https://gearbubble-assets.s3.amazonaws.com/productId/campaignId/styleCode/colorId/front.png
         //dd($campaignId);
         $imageUrls = [];
+        $imageUrlsByProductCode = [];
         foreach($colors as $color) {
           $colorId = $color[0];
           foreach($primaryVariations as $styleVariation) {
             $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/front.png";
             array_push($imageUrls, $url);
+            if(!isset($imageUrlsByProductCode[$styleVariation->productCode])) {
+              $imageUrlsByProductCode[$styleVariation->productCode] = [];
+            }
+            array_push($imageUrlsByProductCode[$styleVariation->productCode], $url);
+
+            // Do the same for the back image
+            $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/back.png";
+            array_push($imageUrls, $url);
+            array_push($imageUrlsByProductCode[$styleVariation->productCode], $url);
           }
         }
 
 
-        $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
-        $this->results = ["imageUrls" => $imageUrls,
-                          "title" => $title,
-                          "url" => $url,
-                          "descriptions" => $descriptions,
-                          "primaryVariations" => $primaryVariations,
-                          "colors" => $colors];
+        $this->results = new Campaign($title, $campaignId, $url, $primaryVariations, $colors, $imageUrls, $imageUrlsByProductCode);
         return true;
       }
       return false;

@@ -15,6 +15,7 @@ use App\Etsy\Models\ListingInventory;
 use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\PropertyValue;
 use App\Etsy\Models\Listing;
+use App\GearBubble\Models\PrimaryVariationTaxonomyGroup;
 
 class ListingController extends Controller
 {
@@ -51,17 +52,20 @@ class ListingController extends Controller
       if($scraper->scrape()) {
 
         // The results come back as an array of the campaign data scraped.
-        $results = $scraper->getResults();
+        $campaign = $scraper->getCampaign();
 
         $api = resolve("\App\Etsy\EtsyAPI");
 
         // Get the shipping templates for this user.
         $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
 
+        $results = ["campaign" => $campaign];
         // Insert the shipping templates into the results to pass along to the view.
         $results["shippingTemplates"] = $shippingTemplates;
+        $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
+        $results["descriptions"] = $descriptions;
 
-        $taxonomies = $this->taxonomize($results["primaryVariations"]);
+        $taxonomies = $this->taxonomize($campaign->primaryVariations, $campaign);
         $results["taxonomies"] = $taxonomies;
 
         return view("shop.listingconfirm", $results);
@@ -72,7 +76,9 @@ class ListingController extends Controller
       }
     }
 
-    private function taxonomize($primaryVariations) {
+    // Group the variations by taxonomy. For example, 11 oz and 15 oz mugs have the same taxonomy.
+    // But different shirts have different taxonomies (eg. hoodies and t-shirts)
+    private function taxonomize($primaryVariations, $campaign) {
       $pt = new ProductTypes();
 
       $tids = [];
@@ -80,9 +86,10 @@ class ListingController extends Controller
         $productCode = $primaryVariation->productCode;
         $taxonomyId = $pt->getTaxonomyIdForProductId($productCode);
         if(!isset($tids[$taxonomyId])) {
-          $tids[$taxonomyId] = [];
+          $tids[$taxonomyId] = new PrimaryVariationTaxonomyGroup($taxonomyId);
         }
-        array_push($tids[$taxonomyId], $primaryVariation);
+        $tids[$taxonomyId]->addPrimaryVariation($primaryVariation);
+        $tids[$taxonomyId]->addImageUrls($campaign->imageUrlsByProductCode[$productCode]);
       }
       return $tids;
     }
@@ -111,23 +118,103 @@ class ListingController extends Controller
 
     // Submit the new listing to Etsy, get the new listing record back.
     public function submit(Request $request) {
-      $validator = validator()->make($request->all(), [
+      /*$validator = validator()->make($request->all(), [
         "title" => "required",
         "description" => "required",
         "colors" => "required"
       ]);
       if($validator->fails()) {
         return redirect()->back()->withErrors($validator)->with(["url" => $request->url]);
+      }*/
+      $listings = $this->extractListingsFromRequest($request);
+
+//      $listing = $this->addNewListing($request->title, $request->description, $this->extractFirstPrice($request), $request->taxonomy_id, $request->tags, $request->shippingTemplateId, $request->imageUrls, $request->codes, $request);
+      foreach($listings as $listing) {
+        $listing->saveToEtsy();
       }
-
-      $listing = $this->addNewListing($request->title, $request->description, $this->extractFirstPrice($request), $request->taxonomy_id, $request->tags, $request->shippingTemplateId, $request->imageUrls, $request->codes, $request);
-
 
 
       // Redirect to the starting point for listing. This does two things:
       // 1. It prevents a refresh from resubmitting and creating a duplicate listing
       // 2. It cycles the user back to list another product. This is the most common use case
       return redirect("/listing/create")->with(["listing" => $listing]);
+    }
+
+    // Takes a request and returns an array of listing-specific data. For example, a GB shirt
+    // campaign may turn into multiple listings (women's tees, hoodies, etc).
+    private function extractListingsFromRequest($request) {
+      $listings = [];
+
+      // The number of listings is determined by the number of different taxonomies
+      // represented in the form data. Look at the taxonomyIds form input value to determine
+      // how many taxonomies are represented.
+      $taxonomyIds = explode(",", $request->taxonomyIds);
+
+      foreach($taxonomyIds as $taxonomyId) {
+
+        $title = $request[$taxonomyId."_title"];
+        $tags = $request[$taxonomyId."_tags"];
+        $imageUrls = $request[$taxonomyId."_imageUrls"];
+        $description = $request[$taxonomyId."_description"];
+        $shippingTemplateId = $request[$taxonomyId."_shippingTemplateId"];
+
+        $listing = new Listing($title, $description, null, $taxonomyId, $tags, $shippingTemplateId, $imageUrls);
+        array_push($listings, $listing);
+
+        $pt = new ProductTypes();
+
+        $tpc = TaxonomyPropertyCollection::createFromTaxonomyId($taxonomyId);
+
+        $colors = $request[$taxonomyId."_colors"];
+        $productCodes = explode(",", $request[$taxonomyId."_codes"]);
+
+        foreach($productCodes as $productCode) {
+          $offering = new ListingOffering($request[$productCode]);
+
+          // The property name is the something like "Volume" or "Size". These are specific
+          // to Etsy. I need a way to map GB products to Etsy variation types (eg. mugs
+          // will have a Volume variation for Etsy). So I'm mapping the variation property name
+          // to the product codes in ProductTypes.
+          $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
+
+          // The variation property is a TaxonomyProperty object. I need this to get the
+          // property ID to pass to the PropertyValue object.
+          $variationProperty = $tpc->propertyByName($variationPropertyName);
+
+
+          // As with property, I also map Etsy-specific scales to GB product types. A scale
+          // is something like "Fluid ounces" or "Milliliters". Scales may have null properties
+          // in some cases. For example, when the variation property name is "Style", as in the
+          // case of shirts, there is no scale. This is handled gracefully by the rest of the code.
+          $scaleName = $pt->getScaleForProductId($productCode);
+
+          // The scale is a TaxonomyPropertyScale object. I need this to get the
+          // scale ID to pass to the PropertyValue object.
+          $scale = $variationProperty->getScaleByName($scaleName);
+
+          // The value is specific to a product code from GB. For example, GB code
+          // 20 is an 11 oz mug. The value is 11. That is because Etsy will need a numeric
+          // value. So I'm keeping the values in the ProductTypes map as well.
+          $val = $pt->getValueForProductId($productCode);
+
+          // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
+          $primaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+
+          $listing->priceVariationPropertyId = $primaryPropVal->property_id;
+
+          $primaryColorProperty = $tpc->propertyByName("Primary color");
+
+          foreach($colors as $color) {
+
+            $colorPv = new PropertyValue($primaryColorProperty->property_id, null, [$color]);
+
+            $lp = new ListingProduct([$primaryPropVal, $colorPv], [$offering]);
+
+            $listing->staging->addProduct($lp);
+          }
+        }
+      }
+      return $listings;
     }
 
     private function addNewListing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $imageUrls, $codes, $primaryVariation, $request) {
@@ -146,8 +233,6 @@ class ListingController extends Controller
         $taxonomyId = $pt->getTaxonomyIdForProductId($primaryVariation["productCode"]);
 
         $tpc = TaxonomyPropertyCollection::createFromTaxonomyId($listing["taxonomy_id"]);
-
-        $pt = new ProductTypes;
 
         $products = [];
 
@@ -199,9 +284,6 @@ class ListingController extends Controller
 
           // For each color variation, create a combination offer. For example, white 11 oz, white 15 oz, black 11 oz, black 15 oz.
           foreach($request->colors as $color) {
-
-            // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
-            $pimaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
 
             // The listing product contains the property value and the offering.
             $listingProduct = new ListingProduct([$primaryPropVal], [$offering]);

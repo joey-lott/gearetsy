@@ -2,6 +2,9 @@
 
 namespace App\Etsy\Models;
 
+use App\Etsy\Models\ListingStagingData;
+use App\Etsy\Models\ListingInventory;
+
 class Listing {
 
   public $quantity = 999;
@@ -19,6 +22,10 @@ class Listing {
   public $processing_max = 14;
   public $imagesToAddFromUrl = [];
 
+  public $inventory;
+  public $staging;
+  public $priceVariationPropertyId;
+
   public function __construct($t, $d, $p, $tid, $tags, $stid, $urls) {
     $this->title = $t;
     $this->description = $d;
@@ -27,6 +34,7 @@ class Listing {
     $this->tags = $tags;
     $this->shipping_template_id = $stid;
     $this->imagesToAddFromUrl = $urls;
+    $this->staging = new ListingStagingData();
   }
 
   public function addImageUrl($url) {
@@ -34,8 +42,15 @@ class Listing {
   }
 
   public function saveToEtsy() {
+    if(!isset($this->price)) {
+      $this->price = $this->staging->getLowestPrice();
+    }
     $api = resolve("\App\Etsy\EtsyAPI");
     $listing = $api->createListing($this);
+
+    $this->inventory = new ListingInventory($listing["listing_id"], $this->staging->products, $this->priceVariationPropertyId);
+    $this->inventory->saveToEtsy();
+
     return $listing;
   }
 

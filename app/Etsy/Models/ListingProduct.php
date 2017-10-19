@@ -24,4 +24,14 @@ class ListingProduct extends EtsyModel {
             "offerings" => $this->offerings];
   }
 
+  public function getLowestPrice() {
+    $lowest = 999999999999999999999999999;
+    foreach($this->offerings as $offering) {
+      if($offering->price < $lowest) {
+        $lowest = $offering->price;
+      }
+    }
+    return $lowest;
+  }
+
 }

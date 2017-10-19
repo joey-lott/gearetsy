@@ -1,19 +1,26 @@
 <?php
 
-use App\Etsy\Models;
+namespace App\Etsy\Models;
 
 class ListingInventory {
 
   public $listing_id;
   public $products = [];
+  public $priceVariationPropertyId;
 
-  public function __construct($id, $products) {
+  public function __construct($id, $products = [], $priceVariationPropertyId = "") {
     $this->listing_id = $id;
     $this->products = $products;
+    $this->priceVariationPropertyId = $priceVariationPropertyId;
   }
 
   public function addProduct($product) {
     array_push($this->products, $product);
+  }
+
+  public function saveToEtsy() {
+    $api = resolve("\App\Etsy\EtsyAPI");
+    $response = $api->updateInventory($this->listing_id, json_encode($this->products), $this->priceVariationPropertyId);
   }
 
 }
