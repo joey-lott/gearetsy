@@ -13,7 +13,7 @@ class TaxonomyPropertyScale {
     return $tps;
   }
 
-  public function __construct($id, $name, $d) {
+  public function __construct($id = null, $name = null, $d = null) {
     $this->scale_id = $id;
     $this->display_name = $name;
     $this->description = $d;

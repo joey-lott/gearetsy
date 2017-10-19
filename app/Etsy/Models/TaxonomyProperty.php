@@ -2,7 +2,7 @@
 
 namespace App\Etsy\Models;
 
-use App\Etsy\Models;
+use App\Etsy\Models\TaxonomyPropertyScale;
 
 class TaxonomyProperty {
 
@@ -41,6 +41,8 @@ class TaxonomyProperty {
         return $scale;
       }
     }
+    // if there is no scale found, return a new TaxonomyPropertyScale object with a null ID.
+    return new TaxonomyPropertyScale();
   }
 
 }

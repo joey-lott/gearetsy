@@ -5,6 +5,7 @@ namespace App\GearBubble\Utils;
 use GuzzleHttp\Client as GClient;
 use Goutte\Client;
 use App\Description;
+use App\GearBubble\Models\PrimaryVariation;
 
 class PageScraper {
 
@@ -79,13 +80,15 @@ class PageScraper {
           foreach($orderStyles->children() as $orderStyle) {
             $stylePrice = $orderStyle->getAttribute('data-cost');
             $styleCode = $orderStyle->getAttribute('value');
-            array_push($primaryVariations, ["price" => $stylePrice, "desc" => $this->products[$styleCode], "productCode" => $styleCode]);
+            $primaryVariation = new PrimaryVariation($stylePrice, $this->products[$styleCode], $styleCode);
+            array_push($primaryVariations, $primaryVariation);
           }
         }
         else {
           $price = $crawler->filterXPath('//input[contains(@id, "price_")]')->extract("value")[0];//->evaluate('substring-after(_text, "$ ")')[0];
           $type = $crawler->filterXPath('//input[contains(@class, "order-style-id")]')->extract('value')[0];
-          array_push($primaryVariations, ["price" => $price, "desc" => $this->products[$type], "productCode" => $type]);
+          $primaryVariation = new PrimaryVariation($price, $this->products[$type], $type);
+          array_push($primaryVariations, $primaryVariation);
 //          dd($orderStyle);
         }
 
@@ -106,11 +109,11 @@ class PageScraper {
         $colors = [];
         $colorsWrapperNode = $crawler->filterXPath("//div[contains(@class, 'colors-wrapper')]")->first();
         if($colorsWrapperNode->count()) {
-          $colors = $colorsWrapperNode->children()->extract("data-id");
+          $colors = $colorsWrapperNode->children()->extract(["data-id", "data-color"]);
         }
         else {
           $singleColorValue = $crawler->filterXPath("//input[contains(@id, 'color_')]")->extract("value")[0];
-          array_push($colors, $singleColorValue);
+          array_push($colors, [$singleColorValue]);
         }
 
         //dd($colors);
@@ -118,8 +121,9 @@ class PageScraper {
         //dd($campaignId);
         $imageUrls = [];
         foreach($colors as $color) {
+          $colorId = $color[0];
           foreach($primaryVariations as $styleVariation) {
-            $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation["productCode"]."/".$color."/front.png";
+            $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/front.png";
             array_push($imageUrls, $url);
           }
         }
@@ -130,7 +134,8 @@ class PageScraper {
                           "title" => $title,
                           "url" => $url,
                           "descriptions" => $descriptions,
-                          "primaryVariations" => $primaryVariations];
+                          "primaryVariations" => $primaryVariations,
+                          "colors" => $colors];
         return true;
       }
       return false;

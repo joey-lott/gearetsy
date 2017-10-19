@@ -19,18 +19,24 @@ class Listing {
   public $processing_max = 14;
   public $imagesToAddFromUrl = [];
 
-  public function __construct($t, $d, $p, $tid, $tags, $stid) {
+  public function __construct($t, $d, $p, $tid, $tags, $stid, $urls) {
     $this->title = $t;
     $this->description = $d;
     $this->price = $p;
     $this->taxonomy_id = $tid;
     $this->tags = $tags;
     $this->shipping_template_id = $stid;
+    $this->imagesToAddFromUrl = $urls;
   }
 
   public function addImageUrl($url) {
     array_push($this->imagesToAddFromUrl, $url);
   }
 
+  public function saveToEtsy() {
+    $api = resolve("\App\Etsy\EtsyAPI");
+    $listing = $api->createListing($this);
+    return $listing;
+  }
 
 }

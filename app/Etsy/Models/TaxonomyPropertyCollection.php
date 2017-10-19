@@ -17,6 +17,12 @@ class TaxonomyPropertyCollection {
     return $tpc;
   }
 
+  static public function createFromTaxonomyId($id) {
+    $api = resolve("\App\Etsy\EtsyAPI");
+    $tprops = $api->fetchTaxonomyProperties($id);
+    return TaxonomyPropertyCollection::createFromAPIResponse($tprops);
+  }
+
   public function addTaxonomyProperty($tp) {
     array_push($this->properties, $tp);
   }

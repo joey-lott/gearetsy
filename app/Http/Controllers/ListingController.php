@@ -58,16 +58,11 @@ class ListingController extends Controller
         // Get the shipping templates for this user.
         $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
 
-        // Get the seller taxonomy.
-        $taxonomy = $api->fetchSellerTaxonomy();
-
-        // Get the taxonomy for Mugs. Passing this single value to the view for now.
-        // Basically, hard coding for mugs only. Will support multiple taxonomies in the future.
-        $taxonomyId = $this->findMugTaxonomyId($taxonomy);
-
-        // Insert the taxonomy ID and the shipping templates into the results to pass along to the view.
-        $results["taxonomy"] = $taxonomyId;
+        // Insert the shipping templates into the results to pass along to the view.
         $results["shippingTemplates"] = $shippingTemplates;
+
+        $taxonomies = $this->taxonomize($results["primaryVariations"]);
+        $results["taxonomies"] = $taxonomies;
 
         return view("shop.listingconfirm", $results);
       }
@@ -77,19 +72,36 @@ class ListingController extends Controller
       }
     }
 
-    private function findMugTaxonomyId($taxonomy) {
+    private function taxonomize($primaryVariations) {
+      $pt = new ProductTypes();
+
+      $tids = [];
+      foreach($primaryVariations as $primaryVariation) {
+        $productCode = $primaryVariation->productCode;
+        $taxonomyId = $pt->getTaxonomyIdForProductId($productCode);
+        if(!isset($tids[$taxonomyId])) {
+          $tids[$taxonomyId] = [];
+        }
+        array_push($tids[$taxonomyId], $primaryVariation);
+      }
+      return $tids;
+    }
+
+/*    private function findTaxonomyIdForNamedTaxonomy($taxonomy, $name) {
       foreach($taxonomy as $item) {
-        if($item->name == "Mugs") {
+        echo($item->name." ".$item->id."<br>");
+        if($item->name == $name) {
           return $item->id;
         }
         if(isset($item->children)) {
-          $mugId = $this->findMugTaxonomyId($item->children);
-          if(isset($mugId)) {
-            return $mugId;
+          $id = $this->findTaxonomyIdForNamedTaxonomy($item->children, $name);
+          if(isset($id)) {
+            return $id;
           }
         }
       }
     }
+*/
 
     private function extractFirstPrice($request) {
       $productCodes = explode(",", $request->codes);
@@ -101,32 +113,39 @@ class ListingController extends Controller
     public function submit(Request $request) {
       $validator = validator()->make($request->all(), [
         "title" => "required",
-        "description" => "required"
+        "description" => "required",
+        "colors" => "required"
       ]);
       if($validator->fails()) {
         return redirect()->back()->withErrors($validator)->with(["url" => $request->url]);
       }
 
+      $listing = $this->addNewListing($request->title, $request->description, $this->extractFirstPrice($request), $request->taxonomy_id, $request->tags, $request->shippingTemplateId, $request->imageUrls, $request->codes, $request);
 
-      $listing = new Listing($request->title, $request->description, $this->extractFirstPrice($request), $request->taxonomy_id, $request->tags, $request->shippingTemplateId);
-      $i = 1;
-      while(isset($request["image".$i])) {
-        $listing->addImageUrl($request["image".$i]);
-        $i++;
-      }
-      $api = resolve("\App\Etsy\EtsyAPI");
-      $listing = $api->createListing($listing);
+
+
+      // Redirect to the starting point for listing. This does two things:
+      // 1. It prevents a refresh from resubmitting and creating a duplicate listing
+      // 2. It cycles the user back to list another product. This is the most common use case
+      return redirect("/listing/create")->with(["listing" => $listing]);
+    }
+
+    private function addNewListing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $imageUrls, $codes, $primaryVariation, $request) {
+
+      $listing = new Listing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $imageUrls);
+      $listing = $listing->saveToEtsy();
 
       // The codes hidden field is only generated in the case of variations. So
       // test for its existence. And if so, create variations.
-      if(isset($request->codes)) {
+      if(isset($codes)) {
 
-        // Get the taxonomy properties for this new listing. This will supply
-        // all the variation possibilities for the type of product. To start, I'm
-        // only going to support mugs. But this will allow me to support other types of
-        // products as well in the near future.
-        $tprops = $api->fetchTaxonomyProperties($listing["taxonomy_id"]);
-        $tpc = TaxonomyPropertyCollection::createFromAPIResponse($tprops);
+
+/* this is copied and pasted here...need to modify to work. Get taxonomy id for product type*/
+        $pt = new ProductTypes();
+
+        $taxonomyId = $pt->getTaxonomyIdForProductId($primaryVariation["productCode"]);
+
+        $tpc = TaxonomyPropertyCollection::createFromTaxonomyId($listing["taxonomy_id"]);
 
         $pt = new ProductTypes;
 
@@ -134,7 +153,7 @@ class ListingController extends Controller
 
         // The product codes are GB-specific codes pass through from the results of the screen scraping.
         // The form has a hidden field with a comma-delimited list of the codes. Split them into an array here.
-        $productCodes = explode(",", $request->codes);
+        $productCodes = explode(",", $codes);
 
         // There is one product code for each variation. For example, 20 and 43 are white mugs, 11 oz and 15 oz. So
         // for each product code there will be one variation.
@@ -147,7 +166,9 @@ class ListingController extends Controller
           $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
 
           // As with property, I also map Etsy-specific scales to GB product types. A scale
-          // is something like "Fluid ounces" or "Milliliters".
+          // is something like "Fluid ounces" or "Milliliters". Scales may have null properties
+          // in some cases. For example, when the variation property name is "Style", as in the
+          // case of shirts, there is no scale. This is handled gracefully by the rest of the code.
           $scaleName = $pt->getScaleForProductId($productCode);
 
           // The value is specific to a product code from GB. For example, GB code
@@ -172,13 +193,23 @@ class ListingController extends Controller
           $scale = $variationProperty->getScaleByName($scaleName);
 
           // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
-          $propVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+          $pimaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
 
-          // The listing product contains the property value and the offering.
-          $listingProduct = new ListingProduct([$propVal], [$offering]);
+          $primaryColorProperty = $tpc->propertyByName("Primary color");
 
-          // Add the listing product to the array of variations. This is what I'll pass to Etsy.
-          array_push($products, $listingProduct);
+          // For each color variation, create a combination offer. For example, white 11 oz, white 15 oz, black 11 oz, black 15 oz.
+          foreach($request->colors as $color) {
+
+            // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
+            $pimaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+
+            // The listing product contains the property value and the offering.
+            $listingProduct = new ListingProduct([$primaryPropVal], [$offering]);
+
+            // Add the listing product to the array of variations. This is what I'll pass to Etsy.
+            array_push($products, $listingProduct);
+
+          }
 
         }
 
@@ -187,13 +218,12 @@ class ListingController extends Controller
         // the property that varies the price on the listing. I'm assuming that there is only one variation for now. In the
         // future, there may be multiple variations, and I'll need to handle this better. (For example, shirts can have
         // variations in size, color, and style)
+
+        $api = resolve("\App\Etsy\EtsyAPI");
         $response = $api->updateInventory($listing["listing_id"], json_encode($products), $variationProperty->property_id);
 
       }
-      // Redirect to the starting point for listing. This does two things:
-      // 1. It prevents a refresh from resubmitting and creating a duplicate listing
-      // 2. It cycles the user back to list another product. This is the most common use case
-      return redirect("/listing/create")->with(["listing" => $listing]);
+      return $listing;
     }
 
 }
