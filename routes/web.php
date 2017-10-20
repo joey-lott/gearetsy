@@ -16,6 +16,9 @@ use App\User;
 Auth::routes();
 
 Route::get('/test', function() {
+  $api = resolve("\App\Etsy\EtsyAPI");
+  $t = $api->fetchTaxonomyProperties("482");
+  dd($t);
   dd(phpinfo());
 });
 

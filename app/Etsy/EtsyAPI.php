@@ -64,6 +64,11 @@ class EtsyAPI
         return $response["results"];
     }
 
+    public function fetchListing($id) {
+        $listing = $this->callGet("listings/".$id);
+        dd($listing);
+    }
+
     public function fetchListings($id, $page=1, $draftsBool = false) {
       $page = 1;
       $p = $this->fetchListingsPage($id, $page, $draftsBool);
@@ -315,9 +320,10 @@ class EtsyAPI
       $listingRecord = $response["results"][0];
       $listingId = $listingRecord["listing_id"];
 
-
-      foreach($listing->imagesToAddFromUrl as $imageUrl) {
-        $this->uploadImage($listingId, $imageUrl);
+      if(count($listing->imagesToAddFromUrl)) {
+        foreach($listing->imagesToAddFromUrlReversed() as $imageUrl) {
+          $this->uploadImage($listingId, $imageUrl);
+        }
       }
 
       return $listingRecord;

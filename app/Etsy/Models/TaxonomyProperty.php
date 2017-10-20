@@ -3,6 +3,7 @@
 namespace App\Etsy\Models;
 
 use App\Etsy\Models\TaxonomyPropertyScale;
+use App\Etsy\Models\TaxonomyPropertyPossibleValue;
 
 class TaxonomyProperty {
 
@@ -30,7 +31,10 @@ class TaxonomyProperty {
       $tps = TaxonomyPropertyScale::createFromAPIResponse($scale);
       array_push($tp->scales, $tps);
     }
-    $tp->possible_values = $response["possible_values"];
+    foreach($response["possible_values"] as $pv) {
+      $tppv = TaxonomyPropertyPossibleValue::createFromAPIResponse($pv);
+      array_push($tp->possible_values, $tppv);
+    }
     $tp->selected_values = $response["selected_values"];
     return $tp;
   }
@@ -43,6 +47,15 @@ class TaxonomyProperty {
     }
     // if there is no scale found, return a new TaxonomyPropertyScale object with a null ID.
     return new TaxonomyPropertyScale();
+  }
+
+  public function getPossibleValueByName($name) {
+    foreach($this->possible_values as $pv) {
+      if($pv->name == $name) {
+        return $pv;
+      }
+    }
+    return null;
   }
 
 }

@@ -76,13 +76,17 @@
           <div class="row">
             <label class="col-sm-2">Colors:</label>
             <div class="col-sm-10">
-              <?php $checkedCount = 0; ?>
+              <?php
+              $checkedCount = 0;
+              $pt = new \App\GearBubble\Utils\ProductTypes();
+              ?>
               @foreach($campaign->colors as $color)
                 <div class="row">
                   <div class="col-sm-1">
                     <input type="checkbox" name="{{$taxonomyGroup->taxonomyId}}_colors[]" value="{{$color[0]}}" checked>
                   </div>
-                  <div class="col-sm-11" style="background-color: {{$color[1]}};border-style: solid">&nbsp;{{$color[1]}}</div>
+                  <div class="col-sm-1" style="background-color: {{$color[1]}};border-style: solid">&nbsp;</div>
+                  <div class="col-sm-10">{{$pt->getColorNameById($color[0])}}</div>
                 </div>
               @endforeach
             </div>
@@ -128,19 +132,22 @@
           </div>
         </div>
         @if(count($taxonomyGroup->primaryVariations) > 0)
-          <div class="row">
           <?php $codes = ""; ?>
           @foreach($taxonomyGroup->primaryVariations as $variation)
+          <div class="row">
             <label class="col-sm-2">{{$variation->description}}</label>
             <div class="col-sm-10">
               <input type="Text" class="form-control" name="{{$variation->productCode}}" value="{{$variation->price}}">
             </div>
             <?php $codes = $codes == "" ? $variation->productCode : $codes.",".$variation->productCode; ?>
+          </div>
           @endforeach
           <input type="hidden" name="{{$taxonomyGroup->taxonomyId}}_codes" value="{{$codes}}" />
-        </div>
         @endif
       </div>
+
+      <input type="hidden" name="{{$taxonomyGroup->taxonomyId}}_sizes" value="{{implode(',',$campaign->sizes)}}">
+
       @endforeach
       <div class="row">
         <label class="col-sm-2"></label>

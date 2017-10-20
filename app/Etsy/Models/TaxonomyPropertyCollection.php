@@ -47,7 +47,7 @@ class TaxonomyPropertyCollection {
 
   public function propertyByName($name) {
     foreach($this->properties as $property) {
-      if($property->name == $name) {
+      if($property->name == $name || $property->display_name == $name) {
         return $property;
       }
     }

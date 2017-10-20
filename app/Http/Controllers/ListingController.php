@@ -11,7 +11,6 @@ use App\GearBubble\Utils\PageScraper;
 use App\GearBubble\Utils\ProductTypes;
 use App\Etsy\Models\TaxonomyPropertyCollection;
 use App\Etsy\Models\ListingOffering;
-use App\Etsy\Models\ListingInventory;
 use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\PropertyValue;
 use App\Etsy\Models\Listing;
@@ -44,7 +43,7 @@ class ListingController extends Controller
       else {
         $url = request()->url;
       }
-
+//dd($url);
       // Use a page scraper to gather the information from the GB campaign page.
       $scraper = new PageScraper($url);
 
@@ -60,6 +59,7 @@ class ListingController extends Controller
         $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
 
         $results = ["campaign" => $campaign];
+
         // Insert the shipping templates into the results to pass along to the view.
         $results["shippingTemplates"] = $shippingTemplates;
         $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
@@ -72,7 +72,7 @@ class ListingController extends Controller
       }
       else {
         $error = "The URL you provided is not a valid campaign or GearBubble is currently inaccessible.";
-        return redirect()->back()->withErrors(["error" => $error]);
+        return redirect("/listing/create")->withErrors(["error" => $error]);
       }
     }
 
@@ -109,15 +109,29 @@ class ListingController extends Controller
       }
     }
 */
-
+/* no longer needed
     private function extractFirstPrice($request) {
       $productCodes = explode(",", $request->codes);
       $firstPrice = $request[$productCodes[0]];
       return $firstPrice;
     }
+    */
 
     // Submit the new listing to Etsy, get the new listing record back.
     public function submit(Request $request) {
+
+      $taxonomyIds = explode(",", $request->taxonomyIds);
+      foreach($taxonomyIds as $taxonomyId) {
+        $validator = validator()->make($request->all(), [
+          $taxonomyId."_title" => "required",
+          $taxonomyId."_description" => "required",
+        ]);
+        if($validator->fails()) {
+          return redirect('/listing/confirm')->withErrors(["error" => "All titles and descriptions must be complete"])->with(["url" => $request->url]);
+        }
+      }
+      // Should add a working validator. Had to comment this one out once I
+      // made the campaign->listing mapping more complicated
       /*$validator = validator()->make($request->all(), [
         "title" => "required",
         "description" => "required",
@@ -151,72 +165,136 @@ class ListingController extends Controller
       $taxonomyIds = explode(",", $request->taxonomyIds);
 
       foreach($taxonomyIds as $taxonomyId) {
-
+//echo("taxonomy id: ".$taxonomyId."<br>");
         $title = $request[$taxonomyId."_title"];
         $tags = $request[$taxonomyId."_tags"];
         $imageUrls = $request[$taxonomyId."_imageUrls"];
         $description = $request[$taxonomyId."_description"];
         $shippingTemplateId = $request[$taxonomyId."_shippingTemplateId"];
 
-        $listing = new Listing($title, $description, null, $taxonomyId, $tags, $shippingTemplateId, $imageUrls);
+        $productCodes = explode(",", $request[$taxonomyId."_codes"]);
+        $firstPrice = $request[$productCodes[0]];
+
+        $listing = new Listing($title, $description, $firstPrice, $taxonomyId, $tags, $shippingTemplateId, $imageUrls);
         array_push($listings, $listing);
 
         $pt = new ProductTypes();
 
         $tpc = TaxonomyPropertyCollection::createFromTaxonomyId($taxonomyId);
-
+//dd($tpc);
         $colors = $request[$taxonomyId."_colors"];
-        $productCodes = explode(",", $request[$taxonomyId."_codes"]);
+        $sizes = explode(",", $request[$taxonomyId."_sizes"]);
+        $sizes = $this->mapGBSizesToEtsy($sizes);
+//echo("product codes: ".count($productCodes)."<br>");
 
-        foreach($productCodes as $productCode) {
-          $offering = new ListingOffering($request[$productCode]);
+          foreach($productCodes as $productCode) {
+            $offering = new ListingOffering($request[$productCode]);
 
-          // The property name is the something like "Volume" or "Size". These are specific
-          // to Etsy. I need a way to map GB products to Etsy variation types (eg. mugs
-          // will have a Volume variation for Etsy). So I'm mapping the variation property name
-          // to the product codes in ProductTypes.
-          $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
+            // The property name is the something like "Volume" or "Size". These are specific
+            // to Etsy. I need a way to map GB products to Etsy variation types (eg. mugs
+            // will have a Volume variation for Etsy). So I'm mapping the variation property name
+            // to the product codes in ProductTypes.
+            $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
 
-          // The variation property is a TaxonomyProperty object. I need this to get the
-          // property ID to pass to the PropertyValue object.
-          $variationProperty = $tpc->propertyByName($variationPropertyName);
+            // The variation property is a TaxonomyProperty object. I need this to get the
+            // property ID to pass to the PropertyValue object.
+            $variationProperty = $tpc->propertyByName($variationPropertyName);
 
 
-          // As with property, I also map Etsy-specific scales to GB product types. A scale
-          // is something like "Fluid ounces" or "Milliliters". Scales may have null properties
-          // in some cases. For example, when the variation property name is "Style", as in the
-          // case of shirts, there is no scale. This is handled gracefully by the rest of the code.
-          $scaleName = $pt->getScaleForProductId($productCode);
+            // As with property, I also map Etsy-specific scales to GB product types. A scale
+            // is something like "Fluid ounces" or "Milliliters". Scales may have null properties
+            // in some cases. For example, when the variation property name is "Style", as in the
+            // case of shirts, there is no scale. This is handled gracefully by the rest of the code.
+            $scaleName = $pt->getScaleForProductId($productCode);
 
-          // The scale is a TaxonomyPropertyScale object. I need this to get the
-          // scale ID to pass to the PropertyValue object.
-          $scale = $variationProperty->getScaleByName($scaleName);
+            // The scale is a TaxonomyPropertyScale object. I need this to get the
+            // scale ID to pass to the PropertyValue object.
+            $scale = $variationProperty->getScaleByName($scaleName);
 
-          // The value is specific to a product code from GB. For example, GB code
-          // 20 is an 11 oz mug. The value is 11. That is because Etsy will need a numeric
-          // value. So I'm keeping the values in the ProductTypes map as well.
-          $val = $pt->getValueForProductId($productCode);
+            // The value is specific to a product code from GB. For example, GB code
+            // 20 is an 11 oz mug. The value is 11. That is because Etsy will need a numeric
+            // value. So I'm keeping the values in the ProductTypes map as well.
+            $val = $pt->getValueForProductId($productCode);
 
-          // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
-          $primaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+            // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
+            $primaryPropVal = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
 
-          $listing->priceVariationPropertyId = $primaryPropVal->property_id;
+            $listing->priceVariationPropertyId = count($productCodes) > 1 ? $primaryPropVal->property_id : null;
 
-          $primaryColorProperty = $tpc->propertyByName("Primary color");
+            $primaryColorProperty = $tpc->propertyByName("Primary color");
+            $sizeProperty = $tpc->propertyByName("Size");
 
-          foreach($colors as $color) {
+            // For each of the color options, create a new listing product.
+            // There will always be at least one color (unless that is not true...in
+            // which case, this will break).
+            foreach($colors as $color) {
+//echo("color: ".$color."<br>");
 
-            $colorPv = new PropertyValue($primaryColorProperty->property_id, null, [$color]);
+              // If there's just one product code, don't add it as a variation. But
+              // if there are more than one product codes, add them as varations.
+              $propertyValues = count($productCodes) > 1 ? [$primaryPropVal] : [];
 
-            $lp = new ListingProduct([$primaryPropVal, $colorPv], [$offering]);
+              // Add the color property value to the listing product collection
+              // if there are more than one color.
+              if(count($colors) > 1) {
+                $colorPv = new PropertyValue($primaryColorProperty->property_id, null, [$pt->getColorNameById($color)]);
+                array_push($propertyValues, $colorPv);
+              }
 
-            $listing->staging->addProduct($lp);
+
+
+              if(count($sizes) > 0 && isset($sizeProperty)) {
+                $sizeOptions = $sizeProperty->possible_values;
+
+                foreach($sizes as $size) {
+
+                  // map the GB sizes to Etsy size possible values with IDs
+                  // because Etsy will only accept two property values with custom
+                  // values per product.
+
+                  $pv = $sizeProperty->getPossibleValueByName($size);
+
+                  // $pv can be undefined if the size isn't a possible value. (For example, GB has a 5XL, but Etsy only has possible values up to 4X)
+                  // In that case, skip this option.
+                  if(isset($pv)) {
+
+                    $sizePv = new PropertyValue($sizeProperty->property_id, $pv->scale_id, null, [$pv->value_id]);
+
+                    // Clone the property values array so as not to change the existing one.
+                    $propVals = array_slice($propertyValues, 0);
+                    array_push($propVals, $sizePv);
+
+                    $lp = new ListingProduct($propVals, [$offering]);
+                    $listing->staging->addProduct($lp);
+                  }
+                }
+              }
+              else {
+                $lp = new ListingProduct($propertyValues, [$offering]);
+                $listing->staging->addProduct($lp);
+              }
+            }
           }
-        }
       }
+//dd($listings);
       return $listings;
     }
 
+    private function mapGBSizesToEtsy($sizes) {
+      $etsy = [];
+      $pt = new ProductTypes();
+      foreach($sizes as $size) {
+        if(isset($size)) {
+          $etsySize = $pt->mapSize($size);
+          if(isset($etsySize)) {
+            array_push($etsy, $etsySize);
+          }
+        }
+      }
+      return $etsy;
+    }
+
+/* no longer used
     private function addNewListing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $imageUrls, $codes, $primaryVariation, $request) {
 
       $listing = new Listing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $imageUrls);
@@ -227,7 +305,6 @@ class ListingController extends Controller
       if(isset($codes)) {
 
 
-/* this is copied and pasted here...need to modify to work. Get taxonomy id for product type*/
         $pt = new ProductTypes();
 
         $taxonomyId = $pt->getTaxonomyIdForProductId($primaryVariation["productCode"]);
@@ -307,5 +384,5 @@ class ListingController extends Controller
       }
       return $listing;
     }
-
+*/
 }

@@ -26,4 +26,8 @@ class ListingStagingData {
     return $lowest;
   }
 
+  public function hasProducts() {
+    return count($this->products) > 0;
+  }
+
 }

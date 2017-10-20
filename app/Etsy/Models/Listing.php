@@ -48,10 +48,16 @@ class Listing {
     $api = resolve("\App\Etsy\EtsyAPI");
     $listing = $api->createListing($this);
 
-    $this->inventory = new ListingInventory($listing["listing_id"], $this->staging->products, $this->priceVariationPropertyId);
-    $this->inventory->saveToEtsy();
+    if($this->staging->hasProducts()) {
+      $this->inventory = new ListingInventory($listing["listing_id"], $this->staging->products, $this->priceVariationPropertyId);
+      $this->inventory->saveToEtsy();
+    }
 
     return $listing;
+  }
+
+  public function imagesToAddFromUrlReversed() {
+    return array_reverse($this->imagesToAddFromUrl);
   }
 
 }

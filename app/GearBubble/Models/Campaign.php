@@ -10,8 +10,9 @@ class Campaign {
   public $colors = [];
   public $imageUrls;
   public $imageUrlsByProductCode = [];
+  public $sizes = [];
 
-  public function __construct($t, $cid, $url, $pvs, $colors, $imageUrls, $iubpc) {
+  public function __construct($t, $cid, $url, $pvs, $colors, $imageUrls, $iubpc, $sizes) {
     $this->title = $t;
     $this->cid = $cid;
     $this->url = $url;
@@ -19,6 +20,7 @@ class Campaign {
     $this->colors = $colors;
     $this->imageUrls = $imageUrls;
     $this->imageUrlsByProductCode = $iubpc;
+    $this->sizes = $sizes;
   }
 
 }

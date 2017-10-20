@@ -12,17 +12,6 @@ class PageScraper {
 
   private $url;
   private $results;
-  private $products = ["20" => "11 oz",
-                       "43" => "15 oz",
-                       "22" => "Unisex Tee",
-                       "28" => "Women's Tee",
-                       "35" => "Youth Tee",
-                       "36" => "Youth Hoodie",
-                       "41" => "Sweatshirt",
-                       "56" => "Zip Hoodie",
-                       "57" => "Long Sleeve Tee",
-                        "29" => "Hoodie",
-                        "31" => "Necklace"];
 
   public function __construct($url) {
       $this->url = $url;
@@ -73,6 +62,8 @@ class PageScraper {
         // I'll force it to vary on style for now...that is easiest and most common use case.
         $primaryVariations = [];
 
+        $pt = new ProductTypes();
+
         // "order-style-id" is a class that identifies the primary variation type. If there is more than
         // one variation, there will be a select with child options. Otherwise, there is just one variation
         // and this will be a hidden input.
@@ -81,31 +72,22 @@ class PageScraper {
           foreach($orderStyles->children() as $orderStyle) {
             $stylePrice = $orderStyle->getAttribute('data-cost');
             $styleCode = $orderStyle->getAttribute('value');
-            $primaryVariation = new PrimaryVariation($stylePrice, $this->products[$styleCode], $styleCode);
+            $primaryVariation = new PrimaryVariation($stylePrice, $pt->getDisplayNameForProductId($styleCode), $styleCode);
             array_push($primaryVariations, $primaryVariation);
           }
         }
         else {
           $price = $crawler->filterXPath('//input[contains(@id, "price_")]')->extract("value")[0];//->evaluate('substring-after(_text, "$ ")')[0];
           $type = $crawler->filterXPath('//input[contains(@class, "order-style-id")]')->extract('value')[0];
-          $primaryVariation = new PrimaryVariation($price, $this->products[$type], $type);
+          $primaryVariation = new PrimaryVariation($price, $pt->getDisplayNameForProductId($type), $type);
           array_push($primaryVariations, $primaryVariation);
-//          dd($orderStyle);
         }
 
-        $variations = [];
-
-        // If there are variations, the additional_style_id select element will appear on the page. In that case,
-        // extract the variations.
-        /*if($crawler->evaluate('count(//select[contains(@id, "additional_style_id")])')[0] > 0) {
-          $variationsCrawler = $crawler->filterXPath('//select[contains(@id, "additional_style_id")]')->children();
-          foreach($variationsCrawler as $variation) {
-            $variationPrice = $variation->getAttribute("data-cost");
-            $variationType = $variation->getAttribute("value");
-            $variations[$variationType] = ["price" => $variationPrice, "desc" => $this->products[$variationType], "productCode" => $variationType];
-          }
-        }*/
-
+        $sizes = [];
+        $sizeOptions = $crawler->filterXPath("//select[contains(@id, 'size_')]/option[string-length(@value) > 0]");
+        if($sizeOptions->count()) {
+          $sizes = $sizeOptions->extract("value");
+        }
 
         $colors = [];
         $colorsWrapperNode = $crawler->filterXPath("//div[contains(@class, 'colors-wrapper')]")->first();
@@ -125,28 +107,31 @@ class PageScraper {
         foreach($colors as $color) {
           $colorId = $color[0];
           foreach($primaryVariations as $styleVariation) {
-            $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/front.png";
-            array_push($imageUrls, $url);
+            $imgUrl = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/front.png";
+            array_push($imageUrls, $imgUrl);
             if(!isset($imageUrlsByProductCode[$styleVariation->productCode])) {
               $imageUrlsByProductCode[$styleVariation->productCode] = [];
             }
-            array_push($imageUrlsByProductCode[$styleVariation->productCode], $url);
+            array_push($imageUrlsByProductCode[$styleVariation->productCode], $imgUrl);
 
-            // Do the same for the back image
-            $url = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/back.png";
-            array_push($imageUrls, $url);
-            array_push($imageUrlsByProductCode[$styleVariation->productCode], $url);
+            // Do the same for the back image if the product type has multiple imageUrls
+            if($pt->hasMultipleImages($styleVariation->productCode)) {
+              $imgUrl = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/back.png";
+              array_push($imageUrls, $imgUrl);
+              array_push($imageUrlsByProductCode[$styleVariation->productCode], $imgUrl);
+            }
           }
         }
 
 
-        $this->results = new Campaign($title, $campaignId, $url, $primaryVariations, $colors, $imageUrls, $imageUrlsByProductCode);
+        $this->results = new Campaign($title, $campaignId, $url, $primaryVariations, $colors, $imageUrls, $imageUrlsByProductCode, $sizes);
         return true;
       }
       return false;
 
     }
   }
+
 
 
 
