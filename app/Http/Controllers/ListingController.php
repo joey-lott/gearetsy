@@ -195,7 +195,7 @@ class ListingController extends Controller
             // will have a Volume variation for Etsy). So I'm mapping the variation property name
             // to the product codes in ProductTypes.
             $variationPropertyName = $pt->getVariationPropertyForProductId($productCode);
-
+//dd($tpc);
             // The variation property is a TaxonomyProperty object. I need this to get the
             // property ID to pass to the PropertyValue object.
             $variationProperty = $tpc->propertyByName($variationPropertyName);
