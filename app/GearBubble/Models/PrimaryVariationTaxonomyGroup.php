@@ -29,4 +29,9 @@ class PrimaryVariationTaxonomyGroup {
     return $taxonomyLabel;
   }
 
+  public function getFirstPrice() {
+    $pv = $this->primaryVariations[0];
+    return isset($pv) ? $pv->price : 0;
+  }
+
 }
