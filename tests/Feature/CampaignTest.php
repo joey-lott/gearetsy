@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\GearBubble\Utils\PageScraper;
 use App\GearBubble\Models\Campaign;
 use App\Etsy\Models\ListingCollection;
+use App\User;
 
 class CampaignTest extends TestCase
 {
@@ -17,6 +18,12 @@ class CampaignTest extends TestCase
       $ps = new PageScraper($url);
       $ps->scrape();
       $this->c = $ps->getCampaign();
+
+      $user = new User();
+      $user->oauthToken = "4fec3a042f3d497b3f8a45f7f6e02e";
+      $user->oauthTokenSecret = "ab0434be15";
+//      dump($user);
+      $this->actingAs($user);
     }
 
     public function test_a_campaign_can_produce_a_listing_collection()
@@ -40,15 +47,15 @@ class CampaignTest extends TestCase
       $this->assertEquals($lc->first()->title, "15 oz Homestead Math");
     }
 
-    public function test_a_campaign_can_produce_a_listing_collection_with_four_listings()
+    public function test_a_campaign_can_produce_a_listing_collection_with_five_listings()
     {
-      // This URL should convert to four listings
+      // This URL should convert to five listings
       $this->setUpCampaignFromPageScraper("https://www.gearbubble.com/testbud");
       $lc = $this->c->getListingCollection();
-      $this->assertEquals($lc->count(), 4);
+      $this->assertEquals($lc->count(), 5);
     }
 
-    public function test_a_campaign_can_produce_a_listing_collection_with_four_listings_and_each_listing_should_have_a_price()
+    public function test_a_campaign_can_produce_a_listing_collection_with_five_listings_and_each_listing_should_have_a_price()
     {
       // This URL should convert to four listings
       $this->setUpCampaignFromPageScraper("https://www.gearbubble.com/testbud");
@@ -57,6 +64,7 @@ class CampaignTest extends TestCase
       $this->assertGreaterThan(1, $lc->getAt(1)->price);
       $this->assertGreaterThan(1, $lc->getAt(2)->price);
       $this->assertGreaterThan(1, $lc->getAt(3)->price);
+      $this->assertGreaterThan(1, $lc->getAt(4)->price);
     }
 
 }

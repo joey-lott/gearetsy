@@ -52,6 +52,7 @@ class TaxonomyProperty {
   public function getPossibleValueByName($name) {
     foreach($this->possible_values as $pv) {
       if($pv->name == $name) {
+//        echo "possible value: ".$pv->name."\n";
         return $pv;
       }
     }

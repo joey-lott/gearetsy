@@ -7,6 +7,7 @@ use Goutte\Client;
 use App\Description;
 use App\GearBubble\Models\PrimaryVariation;
 use App\GearBubble\Models\Campaign;
+use App\GearBubble\Models\CampaignColor;
 
 class PageScraper {
 
@@ -92,11 +93,14 @@ class PageScraper {
         $colors = [];
         $colorsWrapperNode = $crawler->filterXPath("//div[contains(@class, 'colors-wrapper')]")->first();
         if($colorsWrapperNode->count()) {
-          $colors = $colorsWrapperNode->children()->extract(["data-id", "data-color"]);
+          $tmpColors = $colorsWrapperNode->children()->extract(["data-id", "data-color"]);
+          foreach($tmpColors as $c) {
+            array_push($colors, new CampaignColor($c[0], $c[1]));
+          }
         }
         else {
           $singleColorValue = $crawler->filterXPath("//input[contains(@id, 'color_')]")->extract("value")[0];
-          array_push($colors, [$singleColorValue]);
+          array_push($colors, new CampaignColor($singleColorValue, ""));
         }
 
         //dd($colors);
@@ -105,7 +109,7 @@ class PageScraper {
         $imageUrls = [];
         $imageUrlsByProductCode = [];
         foreach($colors as $color) {
-          $colorId = $color[0];
+          $colorId = $color->id;
           foreach($primaryVariations as $styleVariation) {
             $imgUrl = "https://gearbubble-assets.s3.amazonaws.com/".$productId."/".$campaignId."/".$styleVariation->productCode."/".$colorId."/front.png";
             array_push($imageUrls, $imgUrl);

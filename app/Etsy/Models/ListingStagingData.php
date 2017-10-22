@@ -2,6 +2,7 @@
 
 namespace App\Etsy\Models;
 
+use App\Etsy\Models\ListingProduct;
 
 // This class is a helper that allows me to define listing inventory data
 // for a listing object before the listing ID is obtained. Hence, "staging"
@@ -11,7 +12,7 @@ class ListingStagingData {
 
   public $products = [];
 
-  public function addProduct($product) {
+  public function addProduct(ListingProduct $product) {
     array_push($this->products, $product);
   }
 

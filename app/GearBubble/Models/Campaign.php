@@ -32,4 +32,11 @@ class Campaign {
     return $ctlc->getListingCollection();
   }
 
+  public function mustBeSplitIntoOnePrimaryVariationPerListing() {
+    // if has multiple primary variations && multiple colors && multiple sizes, return true
+    return (count($this->primaryVariations) > 1 &&
+       count($this->colors) > 1 &&
+       count($this->sizes) > 1);
+  }
+
 }
