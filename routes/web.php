@@ -17,7 +17,6 @@ Auth::routes();
 
 Route::get('/test', function() {
 $myfn = function(int $a):int { return $a/2; }; $b = $myfn(7);
-dd($b);
   dd(phpinfo());
 });
 
@@ -43,8 +42,8 @@ Route::get('/shop/{id}/dashboard', 'ShopController@dashboard');
 Route::get('/listing/create', 'ListingController@create');
 // Handle both get and post for confirm in the same way. This is because
 // if submission validation fails, it redirets with get.
-Route::get('/listing/confirm', 'ListingController@confirm');
-Route::post('/listing/confirm', 'ListingController@confirm');
+Route::get('/listing/confirm', 'ListingController@confirmNew');
+Route::post('/listing/confirm', 'ListingController@confirmNew');
 Route::post('/listing/submit', 'ListingController@submit');
 
 Route::get('shippingtemplate/create', 'ShippingTemplateController@create');

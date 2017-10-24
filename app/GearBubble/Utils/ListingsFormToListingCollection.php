@@ -3,6 +3,7 @@
 namespace App\GearBubble\Utils;
 
 use App\GearBubble\Models\Campaign;
+use App\GearBubble\Models\CampaignColor;
 use App\GearBubble\Models\PrimaryVariationTaxonomyGroup;
 use App\Etsy\Models\TaxonomyPropertyCollection;
 use App\Etsy\Models\ListingCollection;
@@ -15,101 +16,97 @@ use App\GearBubble\Utils\ProductTypes;
 use App\GearBubble\Models\ListingFormGroupCollection;
 use App\GearBubble\Models\ListingFormGroup;
 use App\Description;
+use App\GearBubble\Models\PrimaryVariation;
 
-class CampaignToListingCollection {
+class ListingsFormToListingCollection {
 
-  private $campaign;
+
   private $listingCollection;
-  private $descriptions;
-  private $shippingTemplates;
+  private $request;
 
-  public function __construct($campaign) {
-      $this->campaign = $campaign;
-      $this->descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
-      $this->shippingTemplates = resolve("\App\Etsy\EtsyAPI")->fetchShippingTemplates(auth()->user()->etsyUserId);
+  public function __construct($request) {
+    $this->request = $request;
+  }
 
+  public function validates() {
+    $listingIds = explode(",", $this->request->listings);
+    foreach($listingIds as $id) {
+      $validator = validator()->make($this->request->all(), [
+        "title_".$id => "required",
+        "description_".$id => "required",
+      ]);
+      if($validator->fails()) return false;
+    }
+    return true;
   }
 
   public function getListingCollection() {
     if(isset($this->listingCollection)) return $this->listingCollection;
-
-    $tgs = $this->splitIntoListingGroups();
-    $lc = $this->convertTaxonomyGroupsToListingCollection($tgs);
-
-    $this->listingCollection = $lc;
-
-    return $lc;
-  }
-
-  // Group the variations by taxonomy. For example, 11 oz and 15 oz mugs have the same taxonomy.
-  // But different shirts have different taxonomies (eg. hoodies and t-shirts).
-  // However, Etsy limits the number of property values per listing product to two.
-  // Therefore, if the campaign has primary variations, colors, and sizes, split
-  // into listings with one primary variation per listing.
-  private function splitIntoListingGroups() {
-    $pt = new ProductTypes();
-
-    // Does this campaign need to be split such that there is only one
-    // primary variation per listing?
-    $onePVPerListing = $this->campaign->mustBeSplitIntoOnePrimaryVariationPerListing();
-
-    $tids = [];
-    foreach($this->campaign->primaryVariations as $primaryVariation) {
-      $productCode = $primaryVariation->productCode;
-      $taxonomyId = $pt->getTaxonomyIdForProductId($productCode);
-
-      // If one primary variation per ID, create a new array element for
-      // each product code. Otherwise, create a new array element for
-      // each taxonomy ID, thereby grouping primary variations when
-      // they share a taxonomy ID.
-      if($onePVPerListing) {
-        $uniqueId = $productCode;
-      }
-      else {
-        $uniqueId = $taxonomyId;
-      }
-
-      if(!isset($tids[$uniqueId])) {
-        $tids[$uniqueId] = new PrimaryVariationTaxonomyGroup($taxonomyId);
-      }
-
-      $tids[$uniqueId]->addPrimaryVariation($primaryVariation);
-      $tids[$uniqueId]->addImageUrls($this->campaign->imageUrlsByProductCode[$productCode]);
-    }
-    return $tids;
-  }
-
-  // Convert the primary variation taxonomy groups into listings and add to a collection.
-  private function convertTaxonomyGroupsToListingCollection($tgs) {
-    $listings = new ListingCollection();
-    $stagingId = 0;
-    foreach($tgs as $tg) {
-
-      $listing = new Listing($this->campaign->title, "", $tg->getFirstPrice(), $tg->taxonomyId, "", null, $tg->imageUrls);
+    $this->listingCollection = $listings = new ListingCollection();
+    $listingIds = explode(",", $this->request->listings);
+    foreach($listingIds as $id) {
+      $listing = $this->constructListingForId($id, $this->request);
       $listings->add($listing);
-      $listing->staging = $this->convertTaxonomyGroupToStaging($tg);
-      $listing->staging->colors = $this->campaign->colors;
-      $listing->staging->sizes = $this->mapGBSizesToEtsy($this->campaign->sizes);
-      $listing->staging->primaryVariations = $tg->primaryVariations;
-
-      // The staging ID is simply to give each listing a temporary unique ID before
-      // they are submitted to Etsy. Afterward, Etsy will assign its own unique
-      // IDs to the listings.
-      $listing->staging->stagingId = $stagingId;
-      $stagingId++;
     }
-    return $listings;
+    return $this->listingCollection;
   }
 
-  private function convertTaxonomyGroupToStaging($tg) {
+  private function constructListingForId($id, $request) {
+
+    $taxonomyId = $request["taxonomyId_".$id];
+    $urls = $request["imageUrls_".$id];
+
+    $primaryVariations = $this->constructPrimaryVariationsForId($id, $taxonomyId, $urls, $request);
+
+    $title = $request["title_".$id];
+    $description = $request["description_".$id];
+    $tags = $request["tags_".$id];
+    $price = $primaryVariations->getFirstPrice();
+    $shippingTemplateId = $request["shippingTemplate_".$id];
+    $listing = new Listing($title, $description, $price, $taxonomyId, $tags, $shippingTemplateId, $urls);
+
+    $colors = $this->parseColorsForId($id, $request);
+    $sizes = explode(",", $request["sizes_".$id]);
+    $staging = $this->convertTaxonomyGroupToStaging($primaryVariations, $colors, $sizes, $request);
+    $listing->staging = $staging;
+    $listing->priceVariationPropertyId = $listing->staging->priceOnProperty->property_id;
+
+    return $listing;
+  }
+
+  private function parseColorsForId($id, $request) {
+    $c = $request["colors_".$id];
+    $colors = [];
+    foreach($c as $cl) {
+      array_push($colors, new CampaignColor($cl, $cl));
+    }
+    return $colors;
+  }
+
+  private function constructPrimaryVariationsForId($id, $taxonomyId, $urls, $request) {
+    $pt = new ProductTypes();
+    $pvtg = new PrimaryVariationTaxonomyGroup($taxonomyId);
+    $pvtg->taxonomyId = $taxonomyId;
+    $pvtg->addImageUrls($urls);
+    $pvids = explode(",", $request["primaryVariationsCodes_".$id]);
+    foreach($pvids as $pvid) {
+      $description = $pt->getDisplayNameForProductId($pvid);
+      $price = $request["primaryVariation_".$pvid];
+      $pv = new PrimaryVariation($price, $description, $pvid);
+      $pvtg->addPrimaryVariation($pv);
+    }
+    return $pvtg;
+  }
+
+
+  private function convertTaxonomyGroupToStaging($tg, $colors, $sizes, $request) {
+
     $s = new ListingStagingData();
 
     $pt = new ProductTypes();
 
     $taxonomyId = $tg->taxonomyId;
-    $colors = $this->campaign->colors;
-    $sizes = $this->campaign->sizes;
-    $sizes = $this->mapGBSizesToEtsy($sizes);
+
     $tpc = TaxonomyPropertyCollection::createFromTaxonomyId($taxonomyId);
 
     // Iterate through all the primary variations (i.e. the different product types
@@ -117,7 +114,7 @@ class CampaignToListingCollection {
     // are in the same taxonomy. But there are two primary variation - short sleeve and
     // long sleeve. Each has a different offering because each has a different price.
     // There should always be at least one primary variation.
-    foreach($this->campaign->primaryVariations as $pv) {
+    foreach($tg->primaryVariations as $pv) {
       // First, create the offering based on the price.
       $offering = new ListingOffering($pv->price);
 
@@ -125,17 +122,15 @@ class CampaignToListingCollection {
       // in the product. Property values in this context can include
       // the primary variation (if there is more than one), size (if there is
       // more than one), and color (if there is more than one).
-      $variationOnPrimaryVariation = count($this->campaign->primaryVariations) > 1;
+      $variationOnPrimaryVariation = count($tg->primaryVariations) > 1;
       $variationOnColor = count($colors) > 1;
       $variationOnSize = count($sizes) > 1;
 
+      // These are the property values to apply to the listing product
+      $propertyValues1 = [];
 
       $primaryColorProperty = $tpc->propertyByName("Primary color");
       $sizeProperty = $tpc->propertyByName("Size");
-
-
-      // These are the property values to apply to the listing product
-      $propertyValues1 = [];
 
       // If there is more than one primary variation, add a property value for the
       // primary variation. Otherwise, don't. The property value is used by Etsy to
@@ -170,6 +165,8 @@ class CampaignToListingCollection {
 
         // The property value contains the Etsy property ID, the Etsy scale ID, and the value (eg. the number of fluid ounces for a mug)
         $pv = new PropertyValue($variationProperty->property_id, $scale->scale_id, [$val]);
+
+        $s->priceOnProperty = $pv;
 
         array_push($propertyValues1, $pv);
       }

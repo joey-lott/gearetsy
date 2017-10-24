@@ -11,7 +11,7 @@ use App\GearBubble\Models\CampaignColor;
 
 class PageScraper {
 
-  private $url;
+  public $url;
   private $results;
 
   public function __construct($url) {

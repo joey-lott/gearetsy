@@ -2,7 +2,7 @@
 
 namespace App\Etsy\Models;
 
-class ListingCollection {
+class ListingCollection extends EtsyModel {
 
   private $listings = [];
 
@@ -20,6 +20,10 @@ class ListingCollection {
 
   public function getAt($i) {
     return $this->listings[$i];
+  }
+
+  public function jsonSerialize() {
+    return ["listings" => $this->listings];
   }
 
 }

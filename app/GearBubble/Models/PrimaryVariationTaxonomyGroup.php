@@ -16,6 +16,7 @@ class PrimaryVariationTaxonomyGroup {
   }
 
   public function addImageUrls($urls) {
+    if(!(isset($urls))) return;
     foreach($urls as $url) {
       array_push($this->imageUrls, $url);
     }

@@ -15,7 +15,11 @@ class Campaign {
   public $imageUrlsByProductCode = [];
   public $sizes = [];
 
+  private $campaignToListingCollection;
+
   public function __construct($t, $cid, $url, $pvs, $colors, $imageUrls, $iubpc, $sizes) {
+    dump($colors);
+    dump($sizes);
     $this->title = $t;
     $this->cid = $cid;
     $this->url = $url;
@@ -28,8 +32,8 @@ class Campaign {
 
   // Convert the GB campaign to Etsy listings and put in a collection
   public function getListingCollection() {
-    $ctlc = new CampaignToListingCollection($this);
-    return $ctlc->getListingCollection();
+    $this->campaignToListingCollection = new CampaignToListingCollection($this);
+    return $this->campaignToListingCollection->getListingCollection();
   }
 
   public function mustBeSplitIntoOnePrimaryVariationPerListing() {
@@ -37,6 +41,11 @@ class Campaign {
     return (count($this->primaryVariations) > 1 &&
        count($this->colors) > 1 &&
        count($this->sizes) > 1);
+  }
+
+  public function getFormFieldCollection() {
+    if(!isset($this->campaignToListingCollection)) $this->getListingCollection();
+    return $this->campaignToListingCollection->getFormFieldCollection();
   }
 
 }

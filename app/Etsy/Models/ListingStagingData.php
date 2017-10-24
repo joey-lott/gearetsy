@@ -12,6 +12,12 @@ class ListingStagingData {
 
   public $products = [];
 
+  public $stagingId;
+  public $colors;
+  public $sizes;
+  public $primaryVariations;
+  public $priceOnProperty;
+
   public function addProduct(ListingProduct $product) {
     array_push($this->products, $product);
   }

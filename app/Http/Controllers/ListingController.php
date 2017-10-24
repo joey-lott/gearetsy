@@ -15,6 +15,7 @@ use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\PropertyValue;
 use App\Etsy\Models\Listing;
 use App\GearBubble\Models\PrimaryVariationTaxonomyGroup;
+use App\GearBubble\Utils\ListingsFormToListingCollection;
 
 class ListingController extends Controller
 {
@@ -62,6 +63,7 @@ class ListingController extends Controller
 
         // Insert the shipping templates into the results to pass along to the view.
         $results["shippingTemplates"] = $shippingTemplates;
+
         $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
         $results["descriptions"] = $descriptions;
 
@@ -76,6 +78,29 @@ class ListingController extends Controller
       }
     }
 
+    public function confirmNew() {
+      // If the url is passed through the form, use that value. But in the case
+      // of a failed validation, the user will be redirected back here. In that case
+      // the url is flashed to the session.
+      if(!isset(request()->url)) {
+        $url = session('url');
+      }
+      else {
+        $url = request()->url;
+      }
+
+      $ps = new PageScraper($url);
+
+      if($ps->scrape()) {
+        $c = $ps->getCampaign();
+        $lfgc = $c->getFormFieldCollection();
+        $data = ["formFieldCollection" => $lfgc, "url" => $url];
+
+        return view("shop.listingconfirmnew", $data);
+      }
+    }
+
+/*
     // Group the variations by taxonomy. For example, 11 oz and 15 oz mugs have the same taxonomy.
     // But different shirts have different taxonomies (eg. hoodies and t-shirts)
     private function taxonomize($primaryVariations, $campaign) {
@@ -93,33 +118,26 @@ class ListingController extends Controller
       }
       return $tids;
     }
-
+*/
     // Submit the new listing to Etsy, get the new listing record back.
     public function submit(Request $request) {
-
-      $taxonomyIds = explode(",", $request->taxonomyIds);
-      foreach($taxonomyIds as $taxonomyId) {
-        $validator = validator()->make($request->all(), [
-          $taxonomyId."_title" => "required",
-          $taxonomyId."_description" => "required",
-        ]);
-        if($validator->fails()) {
-          return redirect('/listing/confirm')->withErrors(["error" => "All titles and descriptions must be complete"])->with(["url" => $request->url]);
-        }
+      $lftlc = new ListingsFormToListingCollection($request);
+      if(!$lftlc->validates()) {
+        return redirect('/listing/confirm')->withErrors(["error" => "All titles and descriptions must be complete"])->with(["url" => $request->url]);
       }
-      $listings = $this->extractListingsFromRequest($request);
-
-      foreach($listings as $listing) {
-        $listing->saveToEtsy();
+      $lc = $lftlc->getListingCollection();
+      for($i = 0; $i < $lc->count(); $i++) {
+        $lc->getAt($i)->saveToEtsy();
       }
 
 
       // Redirect to the starting point for listing. This does two things:
       // 1. It prevents a refresh from resubmitting and creating a duplicate listing
       // 2. It cycles the user back to list another product. This is the most common use case
-      return redirect("/listing/create")->with(["listing" => $listing]);
+      return redirect("/listing/create")->with(["listing" => ""]);
     }
 
+/*
     // Takes a request and returns an array of listing-specific data. For example, a GB shirt
     // campaign may turn into multiple listings (women's tees, hoodies, etc).
     private function extractListingsFromRequest($request) {
@@ -242,7 +260,8 @@ class ListingController extends Controller
 
       return $listings;
     }
-
+*/
+/*
     // Map the GB sizes (sml, med, lrg) to Etsy sizes (S, M, L)
     private function mapGBSizesToEtsy($sizes) {
       $etsy = [];
@@ -257,5 +276,5 @@ class ListingController extends Controller
       }
       return $etsy;
     }
-
+*/
 }
