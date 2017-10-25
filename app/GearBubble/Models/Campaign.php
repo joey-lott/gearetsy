@@ -18,8 +18,6 @@ class Campaign {
   private $campaignToListingCollection;
 
   public function __construct($t, $cid, $url, $pvs, $colors, $imageUrls, $iubpc, $sizes) {
-    dump($colors);
-    dump($sizes);
     $this->title = $t;
     $this->cid = $cid;
     $this->url = $url;

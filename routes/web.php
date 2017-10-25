@@ -16,8 +16,14 @@ use App\User;
 Auth::routes();
 
 Route::get('/test', function() {
-$myfn = function(int $a):int { return $a/2; }; $b = $myfn(7);
   dd(phpinfo());
+});
+
+Route::get('/add-provisional/{shop}', function($shop) {
+  $api = resolve("\App\Etsy\EtsyAPI");
+  $response = $api->fetchShop($shop);
+  $response = $api->addProvisionalUser($response->user_id);
+  dd($response);
 });
 
 Route::post('/login', "UserController@login")->name('login');

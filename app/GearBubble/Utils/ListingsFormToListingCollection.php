@@ -69,7 +69,7 @@ class ListingsFormToListingCollection {
     $sizes = explode(",", $request["sizes_".$id]);
     $staging = $this->convertTaxonomyGroupToStaging($primaryVariations, $colors, $sizes, $request);
     $listing->staging = $staging;
-    $listing->priceVariationPropertyId = $listing->staging->priceOnProperty->property_id;
+    $listing->priceVariationPropertyId = isset($listing->staging->priceOnProperty) ? $listing->staging->priceOnProperty->property_id : "";
 
     return $listing;
   }

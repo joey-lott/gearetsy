@@ -25,7 +25,7 @@ class Listing {
   public $inventory;
   public $staging;
   public $priceVariationPropertyId;
-  
+
   public function __construct($t, $d, $p, $tid, $tags, $stid, $urls) {
     $this->title = $t;
     $this->description = $d;

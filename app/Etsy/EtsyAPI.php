@@ -334,9 +334,24 @@ class EtsyAPI
       return $this->callOAuth("listings/".$listingId."/inventory", $formData, OAUTH_HTTP_METHOD_PUT);
     }
 
+    public function fetchUser($login) {
+      return $this->callGet("users/".$login);
+    }
+
+    public function addProvisionalUser($login) {
+      return $this->callPostV3("application/provisional-users/".$login);
+    }
+
     private function callGet($endpoint, $params="") {
       $client = new Client;
       $response = $client->request("GET", "https://openapi.etsy.com/v2/".$endpoint."?api_key=".$this->apiKey."".$params);
+      return json_decode($response->getBody());
+    }
+
+    private function callPostV3($endpoint) {
+      $client = new Client;
+      $params = ["headers" => ["x-api-key" => $this->apiKey]];
+      $response = $client->request("POST", "https://openapi.etsy.com/v3/".$endpoint, $params);
       return json_decode($response->getBody());
     }
 
@@ -356,6 +371,7 @@ class EtsyAPI
         return $obj;
       }
       catch(\OAuthException $e) {
+        dump("Your request produced an unhandled error. Please copy the following and send it in an email to joeylott@gmail.com with a subject line of 'GB Lightning Lister Bug Report'. Thank you.");
         dump($url);
         dump($params);
         dd($e);
