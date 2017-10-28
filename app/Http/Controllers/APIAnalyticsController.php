@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Client as GClient;
-use Goutte\Client;
 use App\APICalls;
 
 class APIAnalyticsController extends Controller
@@ -16,7 +14,6 @@ class APIAnalyticsController extends Controller
 
 
     public function index(Request $request) {
-      dd($request);
 //      dd($request->query);
       // today, all time
       $today = \Carbon\Carbon::today();
