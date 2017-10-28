@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\APICalls;
+use App\ApiCalls;
 
 class APIAnalyticsController extends Controller
 {
