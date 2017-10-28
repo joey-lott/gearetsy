@@ -66,3 +66,5 @@ Route::post('description/{id}/delete', 'DescriptionController@delete');
 Route::delete('description/{id}/delete', 'DescriptionController@destroy');
 Route::get('description/{id}', 'DescriptionController@view');
 Route::get('description', 'DescriptionController@index');
+
+Route::get('/api-analytics', "APIAnalyticsController@index");

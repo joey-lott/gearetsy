@@ -7,6 +7,7 @@ use \OAuth;
 use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\ListingOffering;
 use App\Etsy\Models\ListingInventory;
+use App\ApiCalls;
 
 class EtsyAPI
 {
@@ -37,6 +38,7 @@ class EtsyAPI
     // Can return either the shop data as an object or "404" as a string.
     // Consider refactoring to throw exception if no shop found.
     public function fetchShop($id) {
+      $this->recordCall("fetchShop");
       $client = new Client;
       try {
         $results = $this->callGet("shops/".$id)->results;
@@ -56,6 +58,7 @@ class EtsyAPI
     }
 
     public function fetchShippingTemplates($userId) {
+      $this->recordCall("fetchShippingTemplates");
       $formData = [
         "user_id" => $userId,
         "limit" => "100",
@@ -65,11 +68,13 @@ class EtsyAPI
     }
 
     public function fetchListing($id) {
+      $this->recordCall("fetchListing");
         $listing = $this->callGet("listings/".$id);
         dd($listing);
     }
 
     public function fetchListings($id, $page=1, $draftsBool = false) {
+      $this->recordCall("fetchListings");
       $page = 1;
       $p = $this->fetchListingsPage($id, $page, $draftsBool);
       $results = $p->results;
@@ -78,6 +83,7 @@ class EtsyAPI
     }
 
     private function fetchListingsPage($id, $page, $draftsBool) {
+      $this->recordCall("fetchListingsPage");
       $endpoint = "shops/".$id."/listings/";
       if($draftsBool) {
         $endpoint = $endpoint."draft";
@@ -97,14 +103,17 @@ class EtsyAPI
     }
 
     public function fetchCountries() {
+      $this->recordCall("fetchCountries");
       return $this->callGet("countries")->results;
     }
 
     public function fetchRegions() {
+      $this->recordCall("fetchRegions");
       return $this->callGet("regions")->results;
     }
 
     public function fetchShippingTemplateEntries($templateId) {
+      $this->recordCall("fetchShippingTemplateEntries");
       $formData = [
         "shipping_template_id" => $templateId,
         "limit" => "100",
@@ -114,11 +123,13 @@ class EtsyAPI
     }
 
     public function fetchCountryByID($countryId) {
+      $this->recordCall("fetchCountryByID");
       $response = $this->callGet("countries/".$countryId);
       dd($response);
     }
 
     public function finalizeAuthorization($secret, $token, $verifier) {
+      $this->recordCall("fetchFinalizeAuthorization");
       $oauth = new \OAuth($this->apiKey, $this->secret);
       $oauth->setToken($token, $secret);
       try {
@@ -137,6 +148,7 @@ class EtsyAPI
     }
 
     public function getEtsyAuthorizeLink() {
+      $this->recordCall("getEtsyAuthorizeLink");
       $a = $this->apiKey;
       $b = $this->secret;
 
@@ -152,11 +164,13 @@ class EtsyAPI
     }
 
     public function fetchShippingTemplateById($id) {
+      $this->recordCall("fetchShippingTemplateById");
       $template = $this->callOAuth("shipping/templates/".$id, null, OAUTH_HTTP_METHOD_GET);
       return (object) $template["results"][0];
     }
 
     public function createShippingTemplate($request) {
+      $this->recordCall("createShippingTemplate");
       // create the shipping template that has both U.S> origin and destination.
       // Primary and secondary cost are equal (no shipping breaks for multiple items).
       $formData = [
@@ -183,6 +197,7 @@ class EtsyAPI
     }
 
     public function updateShippingTemplate($id, $request) {
+      $this->recordCall("updateShippingTemplate");
       // create the shipping template that has both U.S> origin and destination.
       // Primary and secondary cost are equal (no shipping breaks for multiple items).
       $formData = [
@@ -208,11 +223,13 @@ class EtsyAPI
     }
 
     public function fetchCountryIDByISO($iso) {
+      $this->recordCall("fetchCountryIDByISO");
       $response = $this->callGet("countries/iso/".$iso);
       return $response->results[0]->country_id;
     }
 
     public function createShippingTemplateEntry($templateId, $request) {
+      $this->recordCall("createShippingTemplateEntry");
       // create the shipping template that has both U.S> origin and destination.
       // Primary and secondary cost are equal (no shipping breaks for multiple items).
       $formData = [
@@ -226,6 +243,7 @@ class EtsyAPI
     }
 
     public function updateShippingTemplateEntry($entryId, $templateId, $request) {
+      $this->recordCall("updateShippingTemplateEntry");
       // create the shipping template that has both U.S> origin and destination.
       // Primary and secondary cost are equal (no shipping breaks for multiple items).
       $formData = [
@@ -241,6 +259,7 @@ class EtsyAPI
     }
 
     public function fetchSellerTaxonomy() {
+      $this->recordCall("fetchSellerTaxonomy");
       $response = $this->callGet("taxonomy/seller/get");
       return $response->results;
     }
@@ -248,6 +267,7 @@ class EtsyAPI
     // listing ID 550543222
     // image URL https://gearbubble-assets.s3.amazonaws.com/5/1699738/43/235/front.png
     public function uploadImage($listingId, $imageUrl) {
+        $this->recordCall("uploadImage");
         // Get the path to this app /temp/img.
         $path = dirname(realpath(__FILE__))."/temp/img";
 
@@ -280,6 +300,8 @@ class EtsyAPI
     }
 
     public function fetchShopCurrentUser() {
+      $this->recordCall("fetchShopCurrentUser");
+
       // Use the __SELF__ token that Etsy supports to retrieve the shop for the current user.
       // This requires OAuth to work even though otherwise the endpoint does not require OAuth.
       $response = $this->callOAuth("users/__SELF__/shops", null, OAUTH_HTTP_METHOD_GET);
@@ -287,16 +309,19 @@ class EtsyAPI
     }
 
     public function fetchInventory($listingId) {
+      $this->recordCall("fetchInventory");
       $inventory = $this->callOAuth("listings/".$listingId."/inventory", null, OAUTH_HTTP_METHOD_GET);
       return $inventory;
     }
 
     public function fetchTaxonomyProperties($taxonomyId) {
+      $this->recordCall("fetchTaxonomyProperties");
       $properties = $this->callOAuth("taxonomy/seller/".$taxonomyId."/properties", null, OAUTH_HTTP_METHOD_GET);
       return $properties["results"];
     }
 
     public function createListing($listing) {
+      $this->recordCall("createListing");
 
       //$inventory = new ListingInventory();
       $formData = [
@@ -330,15 +355,18 @@ class EtsyAPI
     }
 
     public function updateInventory($listingId, $inventory, $priceOnProperty) {
+      $this->recordCall("updateInventory");
       $formData = ["products" => $inventory, "price_on_property" => $priceOnProperty];
       return $this->callOAuth("listings/".$listingId."/inventory", $formData, OAUTH_HTTP_METHOD_PUT);
     }
 
     public function fetchUser($login) {
+      $this->recordCall("fetchUser");
       return $this->callGet("users/".$login);
     }
 
     public function addProvisionalUser($login) {
+      $this->recordCall("addProvisionalUser");
       return $this->callPostV3("application/provisional-users/".$login);
     }
 
@@ -376,6 +404,13 @@ class EtsyAPI
         dump($params);
         dd($e);
       }
+    }
+
+    // Record the API call in the database
+    private function recordCall($name) {
+        $ac = new APICalls();
+        $ac->name = $name;
+        $ac->save();
     }
 
 }
