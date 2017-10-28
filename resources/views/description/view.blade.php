@@ -14,7 +14,7 @@
     <div class="form-group row">
       <label class="col-sm-2 col-form-label" for="title">Title: </label>
       <div class="col-sm-10">
-        <input type="text" name="title" id="title" value="{{$description->title}}">
+        <input type="text" name="title" id="title" value="{{$description->title}}" class="form-control">
       </div>
     </div>
     <div class="form-group row">

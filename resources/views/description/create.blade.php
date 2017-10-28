@@ -18,9 +18,9 @@
   <form method="post" action="/description/submit">
     {{csrf_field()}}
     <div class="form-group row">
-      <label class="col-sm-2 col-form-label" for="title">Title: </label>
+      <label class="col-sm-2" for="title">Title: </label>
       <div class="col-sm-10">
-        <input type="text" name="title" id="title" value="">
+        <input type="text" name="title" id="title" value="" class="form-control">
       </div>
     </div>
     <div class="form-group row">
