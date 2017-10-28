@@ -16,6 +16,7 @@ class APIAnalyticsController extends Controller
 
 
     public function index(Request $request) {
+      dd($request);
 //      dd($request->query);
       // today, all time
       $today = \Carbon\Carbon::today();
