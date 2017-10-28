@@ -16,7 +16,7 @@ use App\User;
 Auth::routes();
 
 Route::get('/test', function() {
-  dd(phpinfo());
+  //dd(phpinfo());
 });
 
 Route::get('/add-provisional/{shop}', function($shop) {

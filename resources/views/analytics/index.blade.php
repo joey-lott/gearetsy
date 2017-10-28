@@ -3,8 +3,8 @@
 @section("content")
 <div>
   <ul>
-@foreach($data as $name => $c)
-    <li><strong>{{$name}}</strong> called <strong>{{count($c)}}</strong> times today.</li>
+@foreach($data as $call)
+    <li><strong>{{$call->name}}</strong> called <strong>{{$call->count}}</strong> times today.</li>
 @endforeach
   </ul>
 </div>
