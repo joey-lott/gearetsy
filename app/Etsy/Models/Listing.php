@@ -49,11 +49,15 @@ class Listing {
     $listing = $api->createListing($this);
 
     if($this->staging->hasProducts()) {
-      $this->inventory = new ListingInventory($listing["listing_id"], $this->staging->products, $this->priceVariationPropertyId);
+      $this->inventory = $this->createListingInventory($listing["listing_id"]);
       $this->inventory->saveToEtsy();
     }
 
     return $listing;
+  }
+
+  public function createListingInventory($listingId) {
+    return new ListingInventory($listingId, $this->staging->products, $this->priceVariationPropertyId);
   }
 
   public function imagesToAddFromUrlReversed() {

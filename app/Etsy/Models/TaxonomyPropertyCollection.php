@@ -10,7 +10,8 @@ class TaxonomyPropertyCollection {
 
   public $properties = [];
 
-  static public function createFromAPIResponse($response) {
+  static public function createFromAPI($response) {
+    $response = json_decode($response);
     $tpc = new TaxonomyPropertyCollection;
     foreach($response as $t) {
       array_push($tpc->properties, TaxonomyProperty::createFromAPIResponse($t));
@@ -24,14 +25,14 @@ class TaxonomyPropertyCollection {
     // store this to disk locally and read it from there whenever
     // possible.
     if(Storage::exists('taxonomy_properties_'.$id.'.json')) {
-      $tprops = json_decode(Storage::get('taxonomy_properties_'.$id.'.json'));
+      $tprops = Storage::get('taxonomy_properties_'.$id.'.json');
     }
     else {
       $api = resolve("\App\Etsy\EtsyAPI");
-      $tprops = $api->fetchTaxonomyProperties($id);
-      Storage::put('taxonomy_properties_'.$id.'.json', json_encode($tprops));
+      $tprops = json_encode($api->fetchTaxonomyProperties($id));
+      Storage::put('taxonomy_properties_'.$id.'.json', $tprops);
     }
-    return TaxonomyPropertyCollection::createFromAPIResponse($tprops);
+    return TaxonomyPropertyCollection::createFromAPI($tprops);
   }
 
   public function addTaxonomyProperty($tp) {
@@ -63,6 +64,14 @@ class TaxonomyPropertyCollection {
       }
     }
 
+  }
+
+  public function count() {
+    return count($this->properties);
+  }
+
+  public function getAt($i) {
+    return $this->properties[$i];
   }
 
 }

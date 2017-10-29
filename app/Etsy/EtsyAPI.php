@@ -329,7 +329,6 @@ class EtsyAPI
     public function createListing($listing) {
       $this->recordCall("createListing");
 
-      //$inventory = new ListingInventory();
       $formData = [
         "quantity" => $listing->quantity,
         "title" => $listing->title,

@@ -18,9 +18,13 @@ class ListingInventory {
     array_push($this->products, $product);
   }
 
+  public function jsonEncodeProducts() {
+    return json_encode($this->products);
+  }
+
   public function saveToEtsy() {
     $api = resolve("\App\Etsy\EtsyAPI");
-    $response = $api->updateInventory($this->listing_id, json_encode($this->products), $this->priceVariationPropertyId);
+    $response = $api->updateInventory($this->listing_id, $this->jsonEncodeProducts(), $this->priceVariationPropertyId);
   }
 
 }

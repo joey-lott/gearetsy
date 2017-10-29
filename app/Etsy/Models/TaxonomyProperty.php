@@ -21,7 +21,10 @@ class TaxonomyProperty {
   static public function createFromAPIResponse($response) {
     $tp = new TaxonomyProperty;
 
-    // This is due to a "bug" in which the data returned by Etsy
+    // This should probably be corrected at some point. I'm casting
+    // to array for now to avoid having to re-write the following code.
+    // This broke on refactoring at some point because the value
+    // switched form array to object.
     $response = (array) $response;
 
     $tp->property_id = $response["property_id"];

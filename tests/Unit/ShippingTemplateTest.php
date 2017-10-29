@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\ShippingTemplate;
+use App\Etsy\Models\ShippingTemplate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection;
 
