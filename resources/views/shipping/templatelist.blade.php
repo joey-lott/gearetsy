@@ -13,8 +13,9 @@
   </div>
   @include("layouts.message")
   <div>Here are your shipping templates. Click on one to edit it</div>
-  @include("layouts.errors")  @foreach($list as $template)
-    <div><a href="/shippingtemplate/{{$template['shipping_template_id']}}">{{$template["title"]}}</a></div>
+  @include("layouts.errors")
+  @foreach($list as $template)
+    <div><a href="/shippingtemplate/{{$template->shipping_template_id}}">{{$template->title}}</a></div>
   @endforeach
 </div>
 @stop

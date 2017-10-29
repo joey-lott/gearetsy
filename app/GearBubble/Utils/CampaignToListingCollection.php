@@ -15,6 +15,7 @@ use App\GearBubble\Utils\ProductTypes;
 use App\GearBubble\Models\ListingFormGroupCollection;
 use App\GearBubble\Models\ListingFormGroup;
 use App\Description;
+use App\Etsy\Models\ShippingTemplate;
 
 class CampaignToListingCollection {
 
@@ -26,8 +27,7 @@ class CampaignToListingCollection {
   public function __construct($campaign) {
       $this->campaign = $campaign;
       $this->descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
-      $this->shippingTemplates = resolve("\App\Etsy\EtsyAPI")->fetchShippingTemplates(auth()->user()->etsyUserId);
-
+      $this->shippingTemplates = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
   }
 
   public function getListingCollection() {

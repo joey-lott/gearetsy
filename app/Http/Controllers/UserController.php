@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -37,7 +38,8 @@ class UserController extends Controller
     public function store(Request $request) {
       $this->validate($request, [
         'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:6|confirmed'
+        'password' => 'required|string|min:6|confirmed',
+        'registrationPassword' => ['required', Rule::in(["abczxy"])]
       ]);
       $user = User::create(["email" => $request->email, "password" => bcrypt($request->password)]);
       $this->guard()->login($user);

@@ -8,6 +8,7 @@ use App\Etsy\Models\ListingProduct;
 use App\Etsy\Models\ListingOffering;
 use App\Etsy\Models\ListingInventory;
 use App\ApiCalls;
+use Illuminate\Support\Facades\Storage;
 
 class EtsyAPI
 {
@@ -58,13 +59,18 @@ class EtsyAPI
     }
 
     public function fetchShippingTemplates($userId) {
+
       $this->recordCall("fetchShippingTemplates");
+
       $formData = [
         "user_id" => $userId,
         "limit" => "100",
         ];
-        $response = $this->callOAuth("/users/".$userId."/shipping/templates", $formData, OAUTH_HTTP_METHOD_GET);
-        return $response["results"];
+      $response = $this->callOAuth("users/".$userId."/shipping/templates", $formData, OAUTH_HTTP_METHOD_GET);
+
+      $response = json_encode($response["results"]);
+
+      return $response;
     }
 
     public function fetchListing($id) {
@@ -116,7 +122,7 @@ class EtsyAPI
       $this->recordCall("fetchShippingTemplateEntries");
       $formData = [
         "shipping_template_id" => $templateId,
-        "limit" => "100",
+        "limit" => "100"
         ];
         $response = $this->callOAuth("/shipping/templates/".$templateId."/entries", $formData, OAUTH_HTTP_METHOD_GET);
         return $response["results"];
@@ -383,7 +389,7 @@ class EtsyAPI
       return json_decode($response->getBody());
     }
 
-    private function callOAuth($endpoint, $params, $method=OAUTH_HTTP_METHOD_POST, $requestEngineCurl = false) {
+    private function callOAuth($endpoint, $params, $method=OAUTH_HTTP_METHOD_POST, $requestEngineCurl = false, $returnJson = false) {
       $oauth = new OAuth($this->apiKey, $this->secret, OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
       $user = auth()->user();
       $oauth->setToken($user->oauthToken, $user->oauthTokenSecret);
@@ -395,6 +401,7 @@ class EtsyAPI
         if(count($params) == 0) {$params = null;}
         $response = $oauth->fetch($url, $params, $method);
         $json = $oauth->getLastResponse();
+        if($returnJson) return $json;
         $obj = json_decode($json, true);
         return $obj;
       }

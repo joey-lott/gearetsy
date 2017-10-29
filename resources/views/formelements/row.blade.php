@@ -17,10 +17,16 @@
         ?>
         @foreach($formitem->options as $option)
           <div class="row">
-            <div class="col-sm-2">
+            <div class="col-sm-1">
               <input type="checkbox" name="{{$formitem->id}}[]" value="{{$option->value}}" checked>
             </div>
-            <div class="col-sm-10">{{$option->label}}</div>
+            @if(substr($option->label, 0, 1) == "#")
+            <div class="col-sm-11">
+              <div class="form-control" style="background-color: {{$option->label}}"></div>
+            </div>
+            @else
+            <div class="col-sm-11">{{$option->label}}</div>
+            @endif
           </div>
         @endforeach
       </div>

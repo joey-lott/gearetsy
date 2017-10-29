@@ -20,6 +20,10 @@ class TaxonomyProperty {
 
   static public function createFromAPIResponse($response) {
     $tp = new TaxonomyProperty;
+
+    // This is due to a "bug" in which the data returned by Etsy
+    $response = (array) $response;
+
     $tp->property_id = $response["property_id"];
     $tp->name = $response["name"];
     $tp->display_name = $response["display_name"];

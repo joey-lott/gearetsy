@@ -29,6 +29,7 @@ class ListingController extends Controller
       return view("shop.gburlform");
     }
 
+/* no longer needed
     // Once the user has input a GB URL, scrape the GB campaign page and display
     // the results to the user. Prompt the user to confirm that this is the correct
     // campaign information, and require that he fill out a few other fields
@@ -77,6 +78,7 @@ class ListingController extends Controller
         return redirect("/listing/create")->withErrors(["error" => $error]);
       }
     }
+*/
 
     public function confirmNew() {
       // If the url is passed through the form, use that value. But in the case

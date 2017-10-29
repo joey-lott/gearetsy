@@ -12,6 +12,10 @@ class TaxonomyPropertyPossibleValue {
 
   static public function createFromAPIResponse($response) {
     $tp = new TaxonomyPropertyPossibleValue;
+
+    // This is due to a "bug" in which the data returned by Etsy
+    $response = (array) $response;
+
     $tp->value_id = $response["value_id"];
     $tp->name = $response["name"];
     $tp->order = $response["order"];

@@ -4,6 +4,7 @@ namespace App\Etsy\Models;
 
 
 use App\Etsy\Models\TaxonomyProperty;
+use Illuminate\Support\Facades\Storage;
 
 class TaxonomyPropertyCollection {
 
@@ -18,8 +19,18 @@ class TaxonomyPropertyCollection {
   }
 
   static public function createFromTaxonomyId($id) {
-    $api = resolve("\App\Etsy\EtsyAPI");
-    $tprops = $api->fetchTaxonomyProperties($id);
+    // Because this data doesn't change often, and because
+    // Etsy API calls are "expensive" (limited per day),
+    // store this to disk locally and read it from there whenever
+    // possible.
+    if(Storage::exists('taxonomy_properties_'.$id.'.json')) {
+      $tprops = json_decode(Storage::get('taxonomy_properties_'.$id.'.json'));
+    }
+    else {
+      $api = resolve("\App\Etsy\EtsyAPI");
+      $tprops = $api->fetchTaxonomyProperties($id);
+      Storage::put('taxonomy_properties_'.$id.'.json', json_encode($tprops));
+    }
     return TaxonomyPropertyCollection::createFromAPIResponse($tprops);
   }
 

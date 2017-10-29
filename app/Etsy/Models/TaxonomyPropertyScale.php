@@ -9,6 +9,9 @@ class TaxonomyPropertyScale {
   public $description;
 
   static public function createFromAPIResponse($response) {
+    // This is due to a "bug" in which the data returned by Etsy
+    $response = (array) $response;
+
     $tps = new TaxonomyPropertyScale($response["scale_id"], $response["display_name"], $response["description"]);
     return $tps;
   }

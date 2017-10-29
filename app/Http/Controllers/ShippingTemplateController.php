@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client as GClient;
 use Goutte\Client;
 use App\Shop;
+use App\Etsy\Models\ShippingTemplate;
 
 class ShippingTemplateController extends Controller
 {
@@ -55,8 +56,7 @@ class ShippingTemplateController extends Controller
 
     // Display a list of the existing templates.
     public function list() {
-      $api = resolve("\App\Etsy\EtsyAPI");
-      $list = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
+      $list = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
       return view("shipping.templatelist", ["list" => $list]);
     }
 
