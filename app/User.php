@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Notifications\ResetPassword;
+use App\Admin;
 
 class User extends Model implements Authenticatable, CanResetPassword {
 
@@ -77,6 +78,11 @@ class User extends Model implements Authenticatable, CanResetPassword {
 
   public function sendPasswordResetNotification($token) {
         $this->notify(new ResetPassword($token));
+  }
+
+  public function isAdmin() {
+      $admins = Admin::where("user_id", $this->id)->get();
+      return count($admins) == 1;
   }
 
 }
