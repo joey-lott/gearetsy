@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ApiCalls;
+use App\Http\Middleware\RedirectIfNotAdmin;
 
 class APIAnalyticsController extends Controller
 {
 
-    public function __construct()
-    {
-    }
+  public function __construct() {
+    $this->middleware(RedirectIfNotAdmin::class);
+  }
 
 
     public function index(Request $request) {

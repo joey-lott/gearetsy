@@ -19,12 +19,6 @@ Route::get('/test', function() {
   //dd(phpinfo());
 });
 
-Route::get('/add-provisional/{shop}', function($shop) {
-  $api = resolve("\App\Etsy\EtsyAPI");
-  $response = $api->fetchShop($shop);
-  $response = $api->addProvisionalUser($response->user_id);
-  dd($response);
-});
 
 Route::post('/login', "UserController@login")->name('login');
 Route::get('/register', "UserController@create");
@@ -67,4 +61,7 @@ Route::delete('description/{id}/delete', 'DescriptionController@destroy');
 Route::get('description/{id}', 'DescriptionController@view');
 Route::get('description', 'DescriptionController@index');
 
-Route::get('/apianalytics', "APIAnalyticsController@index");
+Route::get('/admin/api-analytics', "APIAnalyticsController@index");
+Route::get('admin', "AdminController@dashboard");
+Route::get('/admin/add-provisional', "AdminController@provisionalForm");
+Route::post('admin/add-provisional', "AdminController@provisionalSubmit");
