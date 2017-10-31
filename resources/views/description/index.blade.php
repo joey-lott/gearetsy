@@ -13,9 +13,11 @@
     <div class="row">
       <a href="/description/create" class="btn btn-primary">+ Create New</a>
     </div>
+    @if(count($descriptions) > 0)
     <div class="row">
-      <h3 class="col-sm-12">Select a description to edit it.</h3>
+      <span class="col-sm-12">Select a description to edit it.</span>
     </div>
+    @endif
     @foreach($descriptions as $description)
       <div class="row">
         <div class="col-sm-4">

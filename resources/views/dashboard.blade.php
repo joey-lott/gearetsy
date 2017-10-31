@@ -17,8 +17,16 @@
       <a href="/description">Product descriptions</a>
     </div>
     <div>
-      <a href="/shippingtemplate">Shipping templates</a>
+      &nbsp;
     </div>
+    <div>
+      <a href="/shippingtemplate/deletecache">Get Updated Shipping Templates from Etsy</a>
+    </div>
+
+    <!--div>
+      <a href="/shippingtemplate">Shipping templates</a>
+    </div-->
   </div>
+  @include("layouts.message");
 </div>
 @stop

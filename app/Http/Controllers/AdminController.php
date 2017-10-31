@@ -25,8 +25,8 @@ class AdminController extends Controller
       "shopName" => "required"
     ]);
     $api = resolve("\App\Etsy\EtsyAPI");
-    $response = $api->fetchShop($shop);
+    $response = $api->fetchShop($request->shopName);
     $response = $api->addProvisionalUser($response->user_id);
-    dd($response);
+    return "added provisional user successfully";
   }
 }

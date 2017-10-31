@@ -46,12 +46,13 @@ Route::get('/listing/confirm', 'ListingController@confirmNew');
 Route::post('/listing/confirm', 'ListingController@confirmNew');
 Route::post('/listing/submit', 'ListingController@submit');
 
-Route::get('shippingtemplate/create', 'ShippingTemplateController@create');
-Route::post('shippingtemplate', 'ShippingTemplateController@submit');
-Route::get('shippingtemplate', 'ShippingTemplateController@list');
-Route::get('shippingtemplate/{id}', 'ShippingTemplateController@view');
-Route::post('shippingtemplate/{id}', 'ShippingTemplateController@update');
-Route::get('shippingtemplate/entry/{id}', 'ShippingTemplateController@entryView');
+Route::get('shippingtemplate/deletecache', 'ShippingTemplateController@deleteCachedTemplateFile');
+// Route::get('shippingtemplate/create', 'ShippingTemplateController@create');
+// Route::post('shippingtemplate', 'ShippingTemplateController@submit');
+// Route::get('shippingtemplate', 'ShippingTemplateController@list');
+// Route::get('shippingtemplate/{id}', 'ShippingTemplateController@view');
+// Route::post('shippingtemplate/{id}', 'ShippingTemplateController@update');
+// Route::get('shippingtemplate/entry/{id}', 'ShippingTemplateController@entryView');
 
 Route::get('description/create', 'DescriptionController@create');
 Route::post('description/submit', 'DescriptionController@submit');

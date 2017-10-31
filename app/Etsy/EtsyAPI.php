@@ -59,7 +59,6 @@ class EtsyAPI
     }
 
     public function fetchShippingTemplates($userId) {
-
       $this->recordCall("fetchShippingTemplates");
 
       $formData = [

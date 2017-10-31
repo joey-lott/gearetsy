@@ -43,4 +43,10 @@ class ShippingTemplate
 
     return $sts;
   }
+
+  static public function deleteCachedTemplateFileForUser($id) {
+    if(Storage::exists("shipping_templates_{$id}.json")) {
+      Storage::delete("shipping_templates_{$id}.json");
+    }
+  }
 }

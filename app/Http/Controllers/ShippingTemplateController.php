@@ -7,6 +7,7 @@ use GuzzleHttp\Client as GClient;
 use Goutte\Client;
 use App\Shop;
 use App\Etsy\Models\ShippingTemplate;
+use Illuminate\Support\Facades\Storage;
 
 class ShippingTemplateController extends Controller
 {
@@ -82,6 +83,11 @@ class ShippingTemplateController extends Controller
         return back()->with(["message" => "The shipping template you selected is not compatible with GearEtsy. You must edit that template from your Etsy shop manager."]);
       }
       return view("shipping.templateview", ["us_entry" => $us_entry, "ca_entry" => $ca_entry, "ww_entry" => $ww_entry, "template" => $template]);
+    }
+
+    public function deleteCachedTemplateFile() {
+      ShippingTemplate::deleteCachedTemplateFileForUser(auth()->user()->etsyUserId);
+      return redirect("/dashboard")->with(["message" => "Success: If you are trying to list a product in another window/tab, reload that window/tab, and all your Etsy shipping templates should now show up."]);
     }
 
     private function api() {
