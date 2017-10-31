@@ -20,6 +20,12 @@
       &nbsp;
     </div>
     <div>
+      <a href="/instructions">View Help</a>
+    </div>
+    <div>
+      &nbsp;
+    </div>
+    <div>
       <a href="/shippingtemplate/deletecache">Get Updated Shipping Templates from Etsy</a>
     </div>
 

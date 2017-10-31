@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 744.09448819 1052.3622047" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <filter id="e">
+   <feGaussianBlur stdDeviation="2.73926"/>
+  </filter>
+  <filter id="h" x="-.25" y="-.25" width="1.5" height="1.5">
+   <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="3"/>
+   <feColorMatrix result="bluralpha" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.365 0"/>
+   <feOffset dx="4" dy="4" in="bluralpha" result="offsetBlur"/>
+   <feMerge result="fbSourceGraphic">
+    <feMergeNode in="offsetBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+   </feMerge>
+   <feColorMatrix in="fbSourceGraphic" result="fbSourceGraphicAlpha" values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"/>
+   <feGaussianBlur in="fbSourceGraphicAlpha" result="blur" stdDeviation="6"/>
+   <feColorMatrix result="bluralpha" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.1 0"/>
+   <feOffset dx="4" dy="4" in="bluralpha" result="offsetBlur"/>
+   <feMerge>
+    <feMergeNode in="offsetBlur"/>
+    <feMergeNode in="fbSourceGraphic"/>
+   </feMerge>
+  </filter>
+  <filter id="g" x="-.29651" y="-.9017" width="1.593" height="2.8034">
+   <feGaussianBlur stdDeviation="27.70529"/>
+  </filter>
+  <filter id="f" x="-.3305" y="-.43509" width="1.661" height="1.8702">
+   <feGaussianBlur stdDeviation="14.46714"/>
+  </filter>
+  <filter id="d" x="-.14348" y="-.17217" width="1.287" height="1.3444">
+   <feGaussianBlur stdDeviation="5.7974"/>
+  </filter>
+  <linearGradient id="c" x1="414.23" x2="409.62" y1="456.03" y2="525.94" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#f9f9f9" offset="0"/>
+   <stop stop-color="#f9f9f9" stop-opacity="0" offset="1"/>
+  </linearGradient>
+  <radialGradient id="b" cx="428.25" cy="347.65" r="90.5" gradientTransform="matrix(1 0 0 .73954 0 73.729)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#0ff" offset="0"/>
+   <stop stop-opacity="0" offset="1"/>
+  </radialGradient>
+  <radialGradient id="a" cx="426.28" cy="287.17" r="52.528" gradientTransform="matrix(1.9023 -.0766 .05769 1.4327 -401.21 -91.602)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#0ff" offset="0"/>
+   <stop stop-color="#004180" offset="1"/>
+  </radialGradient>
+ </defs>
+ <path transform="matrix(2.0921 0 0 1.2284 -535.23 205.22)" d="m539.42 353.84c0 20.363-50.201 36.871-112.13 36.871s-112.13-16.508-112.13-36.871 50.201-36.871 112.13-36.871 112.13 16.508 112.13 36.871z" fill="#1a1a00" filter="url(#g)" opacity=".63912"/>
+ <path transform="matrix(2.5016 0 0 2.4709 -706.49 -276.96)" d="m514.29 283.08c0 49.706-40.294 90-90 90s-90-40.294-90-90 40.294-90 90-90 90 40.294 90 90z" fill="#ccc" fill-rule="evenodd"/>
+ <path transform="matrix(2.3166 0 0 2.2717 -629.26 -220.58)" d="m514.29 283.08c0 49.706-40.294 90-90 90s-90-40.294-90-90 40.294-90 90-90 90 40.294 90 90z" fill="#e6e6e6" fill-opacity=".78307" fill-rule="evenodd" filter="url(#e)"/>
+ <path transform="matrix(1.9687 0 0 1.8758 -476.29 -106.48)" d="m514.29 283.08c0 49.706-40.294 90-90 90s-90-40.294-90-90 40.294-90 90-90 90 40.294 90 90z" fill="#004180" fill-rule="evenodd" stroke="url(#b)"/>
+ <path transform="matrix(2.5349 0 0 2.5349 -729.53 -257.96)" d="m478.81 287.17c0 22.037-23.518 39.901-52.528 39.901s-52.528-17.864-52.528-39.901 23.518-39.901 52.528-39.901 52.528 17.864 52.528 39.901z" fill="url(#a)" filter="url(#f)"/>
+ <path transform="matrix(2.2038 -.05567 .05817 2.1093 -592.53 -156.42)" d="m381.95 320.23 30.5-53.938 12.665 12.168 35.393-32.431-32.083 57.558-14.269-19.048z" fill="#fff" filter="url(#h)"/>
+ <path transform="matrix(2.5349 0 0 2.5349 -678.43 -900.5)" d="m456.59 500.82c0 22.316-21.709 40.406-48.487 40.406s-48.487-18.09-48.487-40.406 21.709-40.406 48.487-40.406 48.487 18.09 48.487 40.406z" fill="url(#c)" filter="url(#d)"/>
+</svg>

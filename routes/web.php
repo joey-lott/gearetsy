@@ -15,7 +15,15 @@ use App\User;
 
 Auth::routes();
 
+use Goutte\Client;
+
 Route::get('/test', function() {
+  // $client = new Client;
+  // $url = 'https://www.pinterest.com/search/pins/?q=boss%20quote';
+  // $crawler = $client->request('GET', $url);
+  // $json = $crawler->filterXPath('//script[contains(@type, "application/json")]')->extract("_text")[0];
+  // $obj = json_decode($json);
+  // dd($obj);
   //dd(phpinfo());
 });
 
@@ -66,3 +74,7 @@ Route::get('/admin/api-analytics', "APIAnalyticsController@index");
 Route::get('admin', "AdminController@dashboard");
 Route::get('/admin/add-provisional', "AdminController@provisionalForm");
 Route::post('admin/add-provisional', "AdminController@provisionalSubmit");
+
+Route::get('/instructions', function() {
+  return view("help/instructions");
+});

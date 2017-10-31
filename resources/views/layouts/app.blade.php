@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'GearEtsy') }}</title>
+    <title>GB Lightning Lister</title>
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -17,15 +17,10 @@
     <div id="app">
         <nav class="navbar navbar-default navbar-static-top">
                   <div class="row">
-                    <div class="col-md-2">
-                      <a class="navbar-brand" href="{{ url('/') }}">
-                          {{ config('app.name', 'GearEtsy') }}
-                      </a>
-                    </div>
-                    <div class="col-md-8"></div>
-                    <div class="col-md-2">
+                    <div class="col-md-12">
+                      <a style="position:relative;top:5px;left:10px" href="{{ url('/') }}"><img src="logo.png"></a>
                       @if(auth()->check())
-                        <a href="/logout">logout</a>
+                        <a href="/logout" style="position:absolute;right:30px;top:4px">logout</a>
                       @endif
                     </div>
                   </div>
