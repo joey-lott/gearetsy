@@ -109,7 +109,7 @@ class ListingController extends Controller
         for($i = 0; $i < count($uniqueWords); $i++) {
           $uniqueWords[$i] = strtolower($uniqueWords[$i]);
         }
-        $keywords = array_diff($uniqueWords, [",", ".", "-", "the", "a", "an", "that"]);
+        $keywords = array_diff($uniqueWords, [",", ".", "-", "the", "a", "an", "that", "in", "i", "it", "of", "for", "to", "and", "is", "as"]);
 
         $data = ["formFieldCollection" => $lfgc, "url" => $url, "defaultKeywords" => implode(",", $keywords)];
 
