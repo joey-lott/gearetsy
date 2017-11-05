@@ -94,9 +94,24 @@ class ListingController extends Controller
       $ps = new PageScraper($url);
 
       if($ps->scrape()) {
+
+        // Get the campaign from the page scraper.
         $c = $ps->getCampaign();
+
+        // Convert the campaign to a form field collection. This may result in one or more listings.
         $lfgc = $c->getFormFieldCollection();
-        $data = ["formFieldCollection" => $lfgc, "url" => $url];
+
+        // Get the title, then convert it to unique keywords to use as default keywords
+        $title = $c->title;
+        $titleWords = explode(" ", $title);
+        $uniqueWords = array_unique($titleWords);
+        $uniqueWords = array_values($uniqueWords);
+        for($i = 0; $i < count($uniqueWords); $i++) {
+          $uniqueWords[$i] = strtolower($uniqueWords[$i]);
+        }
+        $keywords = array_diff($uniqueWords, [",", ".", "-", "the", "a", "an", "that"]);
+
+        $data = ["formFieldCollection" => $lfgc, "url" => $url, "defaultKeywords" => implode(",", $keywords)];
 
         return view("shop.listingconfirmnew", $data);
       }

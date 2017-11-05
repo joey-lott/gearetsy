@@ -33,6 +33,10 @@
         $fields = $lffg->fieldOrder;
         foreach($fields as $field) {
           $formitem = $field;
+          // This is a hack for now to inject default keywords.
+          if($formitem->label == "tags") {
+            $formitem->value = $defaultKeywords;
+          }
       ?>
         @include("formelements.row")
       <?php

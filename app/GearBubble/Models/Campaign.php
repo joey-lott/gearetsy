@@ -46,4 +46,8 @@ class Campaign {
     return $this->campaignToListingCollection->getFormFieldCollection();
   }
 
+  public function downloadImagesAndMakeThumbnails() {
+    
+  }
+
 }

@@ -16,5 +16,10 @@
   <div><h3>Step 2: Make sure you have a shipping template</h3></div>
   <div><iframe src="https://player.vimeo.com/video/240748552" width="640" height="343" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>
 </div>
+<div>&nbsp;</div>
+<div>
+  <div><h3>Step 3: Create a saved description</h3></div>
+  <div><iframe src="https://player.vimeo.com/video/240756527" width="640" height="343" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>
+</div>
 
 @stop

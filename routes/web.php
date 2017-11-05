@@ -18,6 +18,9 @@ Auth::routes();
 use Goutte\Client;
 
 Route::get('/test', function() {
+  dump(php_ini_loaded_file());
+  dump(php_ini_scanned_files());
+  dd(phpinfo());
   // $client = new Client;
   // $url = 'https://www.pinterest.com/search/pins/?q=boss%20quote';
   // $crawler = $client->request('GET', $url);
