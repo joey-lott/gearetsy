@@ -39,7 +39,7 @@ class HomeController extends Controller
       // the authorize page. If the user is authorized but has no shop ID
       // stored, redirect to shop/find (which is now automatic, and could probably
       // be folded into the authorization process). Otherwise, display the dashboard
-      if($hasAuthToken && $hasShopId) {
+      if($hasAuthToken && $hasShopId && $hasApiKey) {
         return view("dashboard");
       }
       else if(!$hasApiKey) {
