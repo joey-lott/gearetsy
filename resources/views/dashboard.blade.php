@@ -10,6 +10,7 @@
 <div class="panel-body">
 
   <div>
+    <div><h3>Common Tasks</h3></div>
     <div>
       <a href="/listing/create">Create a new listing</a>
     </div>
@@ -19,12 +20,14 @@
     <div>
       &nbsp;
     </div>
+    <div><h3>Get Help</h3></div>
     <div>
       <a href="/instructions">View Help</a>
     </div>
     <div>
       &nbsp;
     </div>
+    <div><h3>Uncommon Tasks (just for when you need them)</h3></div>
     <div>
       <a href="/shippingtemplate/deletecache">Get Updated Shipping Templates from Etsy</a>
     </div>

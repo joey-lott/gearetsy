@@ -18,9 +18,10 @@ Auth::routes();
 use Goutte\Client;
 
 Route::get('/test', function() {
-  dump(php_ini_loaded_file());
-  dump(php_ini_scanned_files());
-  dd(phpinfo());
+  dump(auth()->user()->apiKey);
+  // dump(php_ini_loaded_file());
+  // dump(php_ini_scanned_files());
+  // dd(phpinfo());
   // $client = new Client;
   // $url = 'https://www.pinterest.com/search/pins/?q=boss%20quote';
   // $crawler = $client->request('GET', $url);
@@ -34,6 +35,8 @@ Route::get('/test', function() {
 Route::post('/login', "UserController@login")->name('login');
 Route::get('/register', "UserController@create");
 Route::post('/register', "UserController@store")->name('register');
+Route::get('/apikey', "UserController@etsyApiKey");
+Route::post('/apikey', "UserController@etsyApiKeySubmit");
 Route::get('/authorize', "UserController@etsyAuthorize");
 Route::get('/authorize/complete', "UserController@completeAuthorization")->name('completeAuthorization');
 

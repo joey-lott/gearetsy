@@ -28,7 +28,12 @@ class AppServiceProvider extends ServiceProvider
       // Perhaps all methods should be made static in a future
       // refactor.
       \App::singleton("\App\Etsy\EtsyAPI", function() {
-        return new \App\Etsy\EtsyAPI(env('API_KEY'), env('API_SECRET'));
+
+        // Use the API key and secret for the signed in user
+        $user = auth()->user();
+        $key = $user->apiKey->key;
+        $secret = $user->apiKey->secret;
+        return new \App\Etsy\EtsyAPI($key, $secret);
       });
     }
 }

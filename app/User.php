@@ -85,4 +85,8 @@ class User extends Model implements Authenticatable, CanResetPassword {
       return count($admins) == 1;
   }
 
+  public function apiKey() {
+    return $this->hasOne("App\EtsyApiKey");
+  }
+
 }

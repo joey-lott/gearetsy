@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Validation\Rule;
+use App\EtsyApiKey;
 
 class UserController extends Controller
 {
@@ -43,6 +44,19 @@ class UserController extends Controller
       ]);
       $user = User::create(["email" => $request->email, "password" => bcrypt($request->password)]);
       $this->guard()->login($user);
+      return redirect('/dashboard');
+    }
+
+    public function etsyApiKey() {
+      return view('auth.apikey');
+    }
+
+    public function etsyApiKeySubmit(Request $request) {
+      $key = new EtsyApiKey();
+      $key->key = $request->key;
+      $key->secret = $request->secret;
+      $key->user_id = auth()->user()->id;
+      $key->save();
       return redirect('/dashboard');
     }
 

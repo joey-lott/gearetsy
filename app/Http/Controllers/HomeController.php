@@ -31,6 +31,7 @@ class HomeController extends Controller
 
     public function dashboard(Request $request) {
       $user = auth()->user();
+      $hasApiKey = $user->apiKey;
       $hasAuthToken = $user->oauthToken != null;
       $hasShopId = $user->shopId != null;
       // If there is no oauthToken, that means the user has not authorized
@@ -40,6 +41,9 @@ class HomeController extends Controller
       // be folded into the authorization process). Otherwise, display the dashboard
       if($hasAuthToken && $hasShopId) {
         return view("dashboard");
+      }
+      else if(!$hasApiKey) {
+        return redirect("/apikey");
       }
       else if(!$hasAuthToken) {
         return redirect("/authorize");

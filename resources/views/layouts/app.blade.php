@@ -18,7 +18,7 @@
         <nav class="navbar navbar-default navbar-static-top">
                   <div class="row">
                     <div class="col-md-12">
-                      <a style="position:relative;top:5px;left:10px" href="{{ url('/') }}"><img src="logo.png"></a>
+                      <a style="position:relative;top:5px;left:10px" href="{{ url('/') }}"><img src="/logo.png"></a>
                       @if(auth()->check())
                         <a href="/logout" style="position:absolute;right:30px;top:4px">logout</a>
                       @endif
