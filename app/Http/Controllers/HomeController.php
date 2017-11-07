@@ -31,7 +31,7 @@ class HomeController extends Controller
 
     public function dashboard(Request $request) {
       $user = auth()->user();
-      $hasApiKey = $user->apiKey != null;
+      $hasApiKey = isset($user->apiKey);
       $hasAuthToken = $user->oauthToken != null;
       $hasShopId = $user->shopId != null;
       // If there is no oauthToken, that means the user has not authorized
