@@ -109,7 +109,21 @@ class ListingController extends Controller
         for($i = 0; $i < count($uniqueWords); $i++) {
           $uniqueWords[$i] = strtolower($uniqueWords[$i]);
         }
-        $keywords = array_diff($uniqueWords, [",", ".", "-", "the", "a", "an", "that", "in", "i", "it", "of", "for", "to", "and", "is", "as"]);
+
+        // Remove problem characters in keywords
+        for($i = 0; $i < count($uniqueWords); $i++) {
+          $uniqueWords[$i] = preg_replace('/([^a-zA-Z0-9\-\s_\'])*/', "", $uniqueWords[$i]);
+        }
+
+        // Remove common words
+        $keywords = array_diff($uniqueWords, ["-", "_", " ", "the", "a", "an", "that", "in", "i", "it", "of", "for", "to", "and", "is", "as", "or"]);
+        // Fix the missing indices after the removal of words
+        $keywords = array_slice($keywords, 0);
+
+        // Remove excess keywords (Etsy limits to 13)
+        for($i = count($keywords); $i > 13; $i--) {
+          array_pop($keywords);
+        }
 
         $data = ["formFieldCollection" => $lfgc, "url" => $url, "defaultKeywords" => implode(",", $keywords)];
 

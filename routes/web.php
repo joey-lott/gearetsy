@@ -16,9 +16,15 @@ use App\User;
 Auth::routes();
 
 use Goutte\Client;
+use Illuminate\Http\Request;
 
 Route::get('/test', function() {
-  dump(auth()->user()->apiKey);
+  return "<form method='post' action='/test'>".csrf_field()."<input type='text' name='s'><button>go</button></form>";
+});
+Route::post('/test', function(Request $request) {
+//  dump(auth()->user()->apiKey);
+dd(preg_replace('/([^a-zA-Z0-9\-\s_\'])*/', "", $request->s));
+
   // dump(php_ini_loaded_file());
   // dump(php_ini_scanned_files());
   // dd(phpinfo());
