@@ -19,7 +19,7 @@ use Goutte\Client;
 use Illuminate\Http\Request;
 
 Route::get('/test', function() {
-  return "<form method='post' action='/test'>".csrf_field()."<input type='text' name='s'><button>go</button></form>";
+  return view('test');
 });
 Route::post('/test', function(Request $request) {
 //  dump(auth()->user()->apiKey);

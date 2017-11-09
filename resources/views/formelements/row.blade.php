@@ -1,10 +1,40 @@
 @if($formitem->type == "text")
-<div class="form-group row">
-  <label class="col-sm-2">{{$formitem->label}}:</label>
-  <div class="col-sm-10">
-    <input type="text" class="form-control" name="{{$formitem->id}}" value="{{$formitem->value}}">
-  </div>
-</div>
+  <!-- Special case is when it is a tags input. This is not the most elegant
+  way of handling this, but it is what I am doing for now. -->
+  @if(strpos($formitem->label, "tags") !== false) {
+    <div class="form-group row">
+      <label class="col-sm-2">{{$formitem->label}}:</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" name="{{$formitem->id}}" value="{{$formitem->value}}" onkeyup="onTextChange{{$formitem->id}}(this)">
+      </div>
+    </div>
+    <script>
+      function onTextChange{{$formitem->id}}(input) {
+        value = input.value;
+        tags = value.split(",");
+
+        // If there are more than 13 (total tags allowed by Etsy), remove extras
+        for(var i = tags.length; i > 13; i--) {
+          tags.pop();
+        }
+
+        // Remove any characters not allowed by Etsy in tags
+        for(var i = 0; i < tags.length; i++) {
+          tags[i] = tags[i].replace(/[^a-zA-Z0-9_ \-]/, "").trimLeft();
+          if(i != tags.length-1) tags[i] = tags[i].trimRight();
+        }
+
+        input.value = tags.join(",");
+      }
+    </script>
+  @else
+    <div class="form-group row">
+      <label class="col-sm-2">{{$formitem->label}}:</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" name="{{$formitem->id}}" value="{{$formitem->value}}">
+      </div>
+    </div>
+  @endif
 @elseif($formitem->type == "hidden")
 <input type="hidden" name="{{$formitem->id}}" value="{{$formitem->value}}">
 @elseif($formitem->type == "checkBoxGroup")

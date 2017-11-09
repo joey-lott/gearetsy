@@ -103,6 +103,10 @@ class ListingController extends Controller
 
         // Get the title, then convert it to unique keywords to use as default keywords
         $title = $c->title;
+
+        // Get phrases by splitting on " - "
+        $phrases = explode(" - ", $title);
+
         $titleWords = explode(" ", $title);
         $uniqueWords = array_unique($titleWords);
         $uniqueWords = array_values($uniqueWords);
@@ -110,19 +114,39 @@ class ListingController extends Controller
           $uniqueWords[$i] = strtolower($uniqueWords[$i]);
         }
 
+        $keywords = array_merge($phrases, $uniqueWords);
+
         // Remove problem characters in keywords
-        for($i = 0; $i < count($uniqueWords); $i++) {
-          $uniqueWords[$i] = preg_replace('/([^a-zA-Z0-9\-\s_\'])*/', "", $uniqueWords[$i]);
+        for($i = 0; $i < count($keywords); $i++) {
+          $keywords[$i] = preg_replace('/[^a-zA-Z0-9\-\s_\']/', "", $keywords[$i]);
         }
 
         // Remove common words
-        $keywords = array_diff($uniqueWords, ["-", "_", " ", "the", "a", "an", "that", "in", "i", "it", "of", "for", "to", "and", "is", "as", "or"]);
+        $keywords = array_diff($keywords, ["-", "_", " ", "the", "a", "an", "that", "in", "i", "it", "of", "for", "to", "and", "is", "as", "or"]);
+
         // Fix the missing indices after the removal of words
         $keywords = array_slice($keywords, 0);
 
         // Remove excess keywords (Etsy limits to 13)
         for($i = count($keywords); $i > 13; $i--) {
           array_pop($keywords);
+        }
+
+        // Next, make sure no tag is longer than 20 characters (maximum allowed by Etsy)
+        for($i = 0; $i < count($keywords); $i++) {
+          $kw = $keywords[$i];
+          if(strlen($kw) > 20) {
+            // If it is longer than 20, get the first 20 characters
+            $kw = substr($kw, 0, 20);
+
+            // Next, remove the last word because it may be a partial word
+            $kwWords = explode(" ", $kw);
+            if(count($kwWords) > 1) {
+              array_pop($kwWords);
+            }
+            $kw = implode(" ", $kwWords);
+            $keywords[$i] = $kw;
+          }
         }
 
         $data = ["formFieldCollection" => $lfgc, "url" => $url, "defaultKeywords" => implode(",", $keywords)];
