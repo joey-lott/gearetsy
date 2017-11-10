@@ -18,7 +18,7 @@ class Campaign {
   private $campaignToListingCollection;
 
   public function __construct($t, $cid, $url, $pvs, $colors, $imageUrls, $iubpc, $sizes) {
-    $this->title = $t;
+    $this->title = $this->formatTitle($t);
     $this->cid = $cid;
     $this->url = $url;
     $this->primaryVariations = $pvs;
@@ -26,6 +26,39 @@ class Campaign {
     $this->imageUrls = $imageUrls;
     $this->imageUrlsByProductCode = $iubpc;
     $this->sizes = $sizes;
+  }
+
+  public function formatTitle($title) {
+    $title = preg_replace('/[\$\^]/', "", $title);
+
+    // Etsy only allows one &, so remove all but the first (if there are any)
+    $titleChunks = explode("&", $title);
+    if(count($titleChunks) > 1) {
+       $titleChunks[0] .= "&";
+    }
+    $title = implode("", $titleChunks);
+
+    // Etsy only allows one :, so remove all but the first (if there are any)
+    $titleChunks = explode(":", $title);
+    if(count($titleChunks) > 1) {
+       $titleChunks[0] .= ":";
+    }
+    $title = implode("", $titleChunks);
+
+    // Etsy only allows one %, so remove all but the first (if there are any)
+    $titleChunks = explode("%", $title);
+    if(count($titleChunks) > 1) {
+       $titleChunks[0] .= "%";
+    }
+    $title = implode("", $titleChunks);
+
+    if(strlen($title) > 140) {
+      $title = substr($title, 0, 140);
+      $words = explode(" ", $title);
+      array_pop($words);
+      $title = implode(" ", $words);
+    }
+    return $title;
   }
 
   // Convert the GB campaign to Etsy listings and put in a collection
@@ -47,7 +80,7 @@ class Campaign {
   }
 
   public function downloadImagesAndMakeThumbnails() {
-    
+
   }
 
 }

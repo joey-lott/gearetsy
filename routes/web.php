@@ -19,7 +19,14 @@ use Goutte\Client;
 use Illuminate\Http\Request;
 
 Route::get('/test', function() {
-  return view('test');
+  $title = "Demo Shirt - Multiple Styles - Gifts Under 50! - _ - Get the Shirt && :: - 50% off! - 50% off regular price! - This is a really long title";
+  $titleChunks = explode("&", $title);
+  if(count($titleChunks) > 1) {
+     $titleChunks[0] .= "&";
+  }
+  $title = implode("", $titleChunks);
+  dd($title);
+//  return view('test');
 });
 Route::post('/test', function(Request $request) {
 //  dump(auth()->user()->apiKey);
