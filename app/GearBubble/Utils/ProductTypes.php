@@ -8,6 +8,7 @@ class ProductTypes {
 
   private $products = ["20" => ["category" => "mugs", "variation" => "11 oz", "value" => "11", "taxonomyId" => "1062"],
                        "43" => ["category" => "mugs", "variation" => "15 oz", "value" => "15", "taxonomyId" => "1062"],
+                       "45" => ["category" => "mugs", "variation" => "color-changing", "value" => "Color-changing Mug", "taxonomyId" => "1062"],
                        "62" => ["category" => "mugs", "variation" => "Travel Mug", "value" => "Travel Mug", "taxonomyId" => "1062"],
                        "61" => ["category" => "shot_glasses", "variation" => "Shot Glass", "value" => "Shot Glass", "taxonomyId" => "1068"],
                        "22" => ["category" => "shirts", "variation" => "Unisex Tee", "value" => "Unisex Tee", "taxonomyId" => "482"],

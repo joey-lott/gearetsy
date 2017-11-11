@@ -16,6 +16,7 @@ use App\Etsy\Models\PropertyValue;
 use App\Etsy\Models\Listing;
 use App\GearBubble\Models\PrimaryVariationTaxonomyGroup;
 use App\GearBubble\Utils\ListingsFormToListingCollection;
+use App\Etsy\Models\ShippingTemplate;
 
 class ListingController extends Controller
 {
@@ -26,6 +27,10 @@ class ListingController extends Controller
     }
 
     public function create() {
+      $templates = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
+      if($templates->count() == 0) {
+        return view("errors.notemplates");
+      }
       return view("shop.gburlform");
     }
 

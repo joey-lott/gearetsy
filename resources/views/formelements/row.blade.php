@@ -80,6 +80,9 @@
       <option value="{{$option->value}}">{{$option->label}}</option>
     @endforeach
     </select>
+    @if(strpos($formitem->label, "shipping") !== false)
+    (if you don't see your shipping template/profile here, go back to the dashboard and click "Get Updated Shipping Templates from Etsy", then try to list again)
+    @endif
   </div>
 </div>
 
