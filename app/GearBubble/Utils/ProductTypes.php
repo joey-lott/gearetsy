@@ -10,6 +10,7 @@ class ProductTypes {
                        "43" => ["category" => "mugs", "variation" => "15 oz", "value" => "15", "taxonomyId" => "1062"],
                        "45" => ["category" => "mugs", "variation" => "color-changing", "value" => "Color-changing Mug", "taxonomyId" => "1062"],
                        "62" => ["category" => "mugs", "variation" => "Travel Mug", "value" => "Travel Mug", "taxonomyId" => "1062"],
+                       "44" => ["category" => "mugs", "variation" => "Metallic Mug", "value" => "11", "taxonomyId" => "1062"],
                        "61" => ["category" => "shot_glasses", "variation" => "Shot Glass", "value" => "Shot Glass", "taxonomyId" => "1068"],
                        "22" => ["category" => "shirts", "variation" => "Unisex Tee", "value" => "Unisex Tee", "taxonomyId" => "482"],
                        "28" => ["category" => "shirts", "variation" => "Women's Tee", "value" => "Women's Tee", "taxonomyId" => "559"],
@@ -24,7 +25,8 @@ class ProductTypes {
                        "37" => ["category" => "necklaces", "variation" => "Heart-Shaped Silver", "value" => "Heart-Shaped Silver", "taxonomyId" => "1229"],
                        "53" => ["category" => "necklaces", "variation" => "Heart-Shaped Gold", "value" => "Heart-Shaped Gold", "taxonomyId" => "1229"],
                        "59" => ["category" => "necklaces", "variation" => "Gold Engraved", "value" => "Gold Engraved", "taxonomyId" => "1229"],
-                       "60" => ["category" => "necklaces", "variation" => "Stainless Steel Engraved", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"]
+                       "60" => ["category" => "necklaces", "variation" => "Stainless Steel Engraved", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"],
+                       "42" => ["category" => "pillowcases", "variation" => "Pillowcase", "value" => "Pillowcase", "taxonomyId" => "1925"]
                       ];
 /*
 mugs (includes travel mugs) 1062
@@ -45,10 +47,10 @@ leggings 510
 
 
   private $categories = ["mugs" => ["scale" => "Fluid ounces", "variationProperty" => "Volume", "imageCount" => "2"],
-                         "shot_glasses" => ["scale" => "", "variationProperty" => "Material", "imageCount" => "1"],
                          "shirts" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "2"],
                          "leggings" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "2"],
                          "necklaces" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "1"],
+                         "pillowcases" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "1"],
                         ];
 
   private $colorMap = ["115" => "White",
@@ -60,16 +62,20 @@ leggings 510
                        "155" => "Navy Blue",
                        "156" => "Pink",
                        "251" => "Green",
-                       "270" => "Gold"
-                     ];
+                       "270" => "Gold",
+                       "256" => "Metallic Purple",
+                       "257" => "Metallic Gold",
+                       "258" => "Metallic Silver"
+                      ];
 
   private $sizeMap = ["sml" => "S",
                       "med" => "M",
                       "lrg" => "L",
                       "xlg" => "XL",
-                      "xxl" => "2X",
-                      "xxxl" => "3X",
-                      "xxxxl" => "4X"];
+                      "xxl" => "2X"];
+                      // ,
+                      // "xxxl" => "3X",
+                      // "xxxxl" => "4X"];
 
   public function mapSize($gb) {
     if(isset($this->sizeMap[$gb])) {

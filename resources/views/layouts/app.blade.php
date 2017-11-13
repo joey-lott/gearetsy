@@ -12,6 +12,20 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script>
+      // This is so any javascript that needs to be deferred until the page is ready
+      // can be run at that time. This assumes only one parameter per funciton call.
+      // Fix later if needs more than one argument.
+      let doOnReady = [];
+      $(document).ready(function() {
+        for(let i = 0; i < doOnReady.length; i++) {
+          let todo = doOnReady[i];
+          todo.functionName(todo.parameter);
+        }
+      });
+    </script>
 </head>
 <body>
     <div id="app">

@@ -1,7 +1,10 @@
+<?php
+//dump($formitem);
+?>
 @if($formitem->type == "text")
   <!-- Special case is when it is a tags input. This is not the most elegant
   way of handling this, but it is what I am doing for now. -->
-  @if(strpos($formitem->label, "tags") !== false) {
+  @if(strpos($formitem->label, "tags") !== false)
     <div class="form-group row">
       <label class="col-sm-2">{{$formitem->label}}:</label>
       <div class="col-sm-10">
@@ -72,13 +75,37 @@
   </div>
 </div>
 @elseif($formitem->type == "select")
+<?php
+foreach($formitem->options as $option) {
+    // $n = strtolower($formitem->value);
+    // $h = strtolower($option->label);
+    // dump($n);
+    // dump($h);
+  // dump(strpos($h, $n));
+//  dump(strtolower($formitem->value).", ".strtolower($option->value)." ".strpos(strtolower($formitem->value), strtolower($option->value)));
+//  dump(strpos("pillowcase description", "pillowcase"));
+}
+?>
 <div class="row">
   <label class="col-sm-2">{{$formitem->label}}:</label>
   <div class="col-sm-10">
     <select name="{{$formitem->id}}" class="form-control"  id="{{$formitem->id}}" <?php if(isset($formitem->onchangeTarget)) echo 'onchange="setTargetValue'.$formitem->id.'(\''.$formitem->onchangeTarget.'\')"';?>>
-    @foreach($formitem->options as $option)
-      <option value="{{$option->value}}">{{$option->label}}</option>
-    @endforeach
+    <?php
+    foreach($formitem->options as $option) {
+      $n = strtolower($formitem->value);
+      $h = strtolower($option->label);
+      if($n == "") {
+        echo '<option value="'.$option->value.'">'.$option->label.'</option>';
+        continue;
+      }
+      if(strpos($h, $n) !== false) {
+        echo '<option value="'.$option->value.'" selected>'.$option->label.'</option>';
+      }
+      else {
+        echo '<option value="'.$option->value.'">'.$option->label.'</option>';
+      }
+    }
+    ?>
     </select>
     @if(strpos($formitem->label, "shipping") !== false)
     (if you don't see your shipping template/profile here, go back to the dashboard and click "Get Updated Shipping Templates from Etsy", then try to list again)
@@ -88,10 +115,18 @@
 
 <script>
 
+  <?php
+  if(isset($formitem->onchangeTarget)) {
+    echo "doOnReady.push({functionName: setTargetValue{$formitem->id}, parameter: '{$formitem->onchangeTarget}'});";
+  }
+  ?>
+
   function setTargetValue{{$formitem->id}}(targetId) {
     s = document.getElementById("{{$formitem->id}}");
     t = document.getElementById(targetId);
-    console.log(s, t);
+    console.log("target", t);
+//    console.log(s, t);
+    console.log(s.value);
     t.value = s.value;
   }
 

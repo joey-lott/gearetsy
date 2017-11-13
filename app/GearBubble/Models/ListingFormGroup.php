@@ -32,7 +32,10 @@ class ListingFormGroup {
     $this->tags = new ListingFormItem("tags", "tags_".$sid, "text", "");
     $descDefault = count($descriptions) ? $descriptions[0]->description : "";
     $this->description = new ListingFormItem("description", "description_".$sid, "textarea", $descDefault);
-    $this->descriptions = new ListingFormItem("descriptions", "descriptions_".$sid, "select", "", $this->mapToOptions($descriptions, "description", "title"), "description_".$sid);
+    // Set the descriptions default value to the first of the primary variations
+//    dd($listing->staging->primaryVariations);
+//dd($descriptions);
+    $this->descriptions = new ListingFormItem("descriptions", "descriptions_".$sid, "select", $listing->staging->primaryVariations[0]->description, $this->mapToOptions($descriptions, "description", "title"), "description_".$sid);
     $this->shippingTemplates = new ListingFormItem("shipping templates", "shippingTemplate_".$sid, "select", "", $this->mapToOptions($shippingTemplates, "shipping_template_id", "title"));
     $this->primaryVariationCodes = new ListingFormItem("primaryVariationCodes", "primaryVariationsCodes_".$sid, "hidden", $this->createArrayToString($listing->staging->primaryVariations, "productCode"));
 
