@@ -35,5 +35,9 @@ class AppServiceProvider extends ServiceProvider
         $secret = $user->apiKey->secret;
         return new \App\Etsy\EtsyAPI($key, $secret);
       });
+
+      $this->app->singleton("\App\DebugFlag", function() {
+        return new \App\DebugFlag();
+      });
     }
 }

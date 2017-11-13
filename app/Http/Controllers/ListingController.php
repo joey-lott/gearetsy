@@ -26,12 +26,12 @@ class ListingController extends Controller
         $this->middleware('auth');
     }
 
-    public function create() {
+    public function create(Request $request) {
       $templates = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
       if($templates->count() == 0) {
         return view("errors.notemplates");
       }
-      return view("shop.gburlform");
+      return view("shop.gburlform", ["debug" => $request->debug]);
     }
 
 /* no longer needed
@@ -85,7 +85,13 @@ class ListingController extends Controller
     }
 */
 
-    public function confirmNew() {
+    public function confirmNew(Request $request) {
+
+
+      if($request->debug === "true") {
+        resolve("\App\DebugFlag")->debug = true;
+      }
+
       // If the url is passed through the form, use that value. But in the case
       // of a failed validation, the user will be redirected back here. In that case
       // the url is flashed to the session.

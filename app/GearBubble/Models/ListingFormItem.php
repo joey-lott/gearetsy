@@ -18,6 +18,10 @@ class ListingFormItem {
     $this->type = $type;
     $this->options = $options;
     $this->onchangeTarget = $onchangeTarget;
+    if(resolve("\App\DebugFlag")->debug) {
+      dump("options for $label:");
+      dump($options);
+    }
   }
 
 }

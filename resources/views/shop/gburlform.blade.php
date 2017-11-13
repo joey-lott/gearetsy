@@ -1,7 +1,6 @@
 @extends("layouts.app")
 
 @section("content")
-
 <div class="panel-heading">
   <div class="row">
     <div class="col-sm-2"><a href="/dashboard">&lt Dashboard</a></div>
@@ -13,6 +12,11 @@
     @include("layouts.errors")
     <form method="POST" action="/listing/confirm">
       {{csrf_field()}}
+      <?php
+        if($debug === "true") {
+          echo "<input type='hidden' name='debug' value='true'>";
+        }
+      ?>
       <div class="row">
         GB Campaign Link:
       </div>

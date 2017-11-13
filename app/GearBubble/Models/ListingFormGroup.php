@@ -35,6 +35,10 @@ class ListingFormGroup {
     // Set the descriptions default value to the first of the primary variations
 //    dd($listing->staging->primaryVariations);
 //dd($descriptions);
+    if(resolve("\App\DebugFlag")->debug) {
+      dump("all descriptions:");
+      dump($descriptions);
+    }
     $this->descriptions = new ListingFormItem("descriptions", "descriptions_".$sid, "select", $listing->staging->primaryVariations[0]->description, $this->mapToOptions($descriptions, "description", "title"), "description_".$sid);
     $this->shippingTemplates = new ListingFormItem("shipping templates", "shippingTemplate_".$sid, "select", "", $this->mapToOptions($shippingTemplates, "shipping_template_id", "title"));
     $this->primaryVariationCodes = new ListingFormItem("primaryVariationCodes", "primaryVariationsCodes_".$sid, "hidden", $this->createArrayToString($listing->staging->primaryVariations, "productCode"));
