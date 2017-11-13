@@ -100,10 +100,10 @@ foreach($formitem->options as $option) {
         continue;
       }
       if(strpos($h, $n) !== false) {
-        echo '<option value="'.$option->value.'" selected>'.$option->label.'</option>';
+        echo '<option value="'.rawurlencode($option->value).'" selected>'.$option->label.'</option>';
       }
       else {
-        echo '<option value="'.$option->value.'">'.$option->label.'</option>';
+        echo '<option value="'.rawurlencode($option->value).'">'.$option->label.'</option>';
       }
     }
     ?>
@@ -125,10 +125,7 @@ foreach($formitem->options as $option) {
   function setTargetValue{{$formitem->id}}(targetId) {
     s = document.getElementById("{{$formitem->id}}");
     t = document.getElementById(targetId);
-    console.log("target", t);
-//    console.log(s, t);
-    console.log(s.value);
-    t.value = s.value;
+    t.value = decodeURIComponent(s.value);
   }
 
 </script>
