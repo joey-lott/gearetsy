@@ -24,8 +24,8 @@ class ProductTypes {
                        "51" => ["category" => "necklaces", "variation" => "Pendant Necklace Square Gold", "value" => "Square Gold", "taxonomyId" => "1229"],
                        "37" => ["category" => "necklaces", "variation" => "Pendant Necklace Heart-Shaped Silver", "value" => "Heart-Shaped Silver", "taxonomyId" => "1229"],
                        "53" => ["category" => "necklaces", "variation" => "Pendant Necklace Heart-Shaped Gold", "value" => "Heart-Shaped Gold", "taxonomyId" => "1229"],
-                       "59" => ["category" => "necklaces", "variation" => "Engraved Gold", "value" => "Gold Engraved", "taxonomyId" => "1229"],
-                       "60" => ["category" => "necklaces", "variation" => "Engraved Stainless Steel", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"],
+                       "59" => ["category" => "necklaces", "variation" => "Engraved Necklace Gold", "value" => "Gold Engraved", "taxonomyId" => "1229"],
+                       "60" => ["category" => "necklaces", "variation" => "Engraved Necklace Stainless Steel", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"],
                        "42" => ["category" => "pillowcases", "variation" => "Pillowcase", "value" => "Pillowcase", "taxonomyId" => "1925"]
                       ];
 /*
