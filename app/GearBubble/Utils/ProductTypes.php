@@ -6,9 +6,9 @@ namespace App\GearBubble\Utils;
 class ProductTypes {
 
 
-  private $products = ["20" => ["category" => "mugs", "variation" => "11 oz", "value" => "11", "taxonomyId" => "1062"],
-                       "43" => ["category" => "mugs", "variation" => "15 oz", "value" => "15", "taxonomyId" => "1062"],
-                       "45" => ["category" => "mugs", "variation" => "color-changing", "value" => "Color-changing Mug", "taxonomyId" => "1062"],
+  private $products = ["20" => ["category" => "mugs", "variation" => "Mug 11 oz", "value" => "11", "taxonomyId" => "1062"],
+                       "43" => ["category" => "mugs", "variation" => "Mug 15 oz", "value" => "15", "taxonomyId" => "1062"],
+                       "45" => ["category" => "mugs", "variation" => "Color Changing Mug", "value" => "Color-changing Mug", "taxonomyId" => "1062"],
                        "62" => ["category" => "mugs", "variation" => "Travel Mug", "value" => "Travel Mug", "taxonomyId" => "1062"],
                        "44" => ["category" => "mugs", "variation" => "Metallic Mug", "value" => "11", "taxonomyId" => "1062"],
                        "61" => ["category" => "shot_glasses", "variation" => "Shot Glass", "value" => "Shot Glass", "taxonomyId" => "1068"],
@@ -18,14 +18,14 @@ class ProductTypes {
                        "29" => ["category" => "shirts", "variation" => "Hoodie", "value" => "Hoodie", "taxonomyId" => "1853"],
                        "57" => ["category" => "shirts", "variation" => "Long Sleeve Tee", "value" => "Long Sleeve Tee", "taxonomyId" => "482"],
                        "58" => ["category" => "leggings", "variation" => "Leggings", "value" => "Leggings", "taxonomyId" => "510"],
-                       "31" => ["category" => "necklaces", "variation" => "Circular Silver", "value" => "Circular Silver", "taxonomyId" => "1229"],
-                       "52" => ["category" => "necklaces", "variation" => "Circular Gold", "value" => "Circular Gold", "taxonomyId" => "1229"],
-                       "32" => ["category" => "necklaces", "variation" => "Square Silver", "value" => "Square Silver", "taxonomyId" => "1229"],
-                       "51" => ["category" => "necklaces", "variation" => "Square Gold", "value" => "Square Gold", "taxonomyId" => "1229"],
-                       "37" => ["category" => "necklaces", "variation" => "Heart-Shaped Silver", "value" => "Heart-Shaped Silver", "taxonomyId" => "1229"],
-                       "53" => ["category" => "necklaces", "variation" => "Heart-Shaped Gold", "value" => "Heart-Shaped Gold", "taxonomyId" => "1229"],
-                       "59" => ["category" => "necklaces", "variation" => "Gold Engraved", "value" => "Gold Engraved", "taxonomyId" => "1229"],
-                       "60" => ["category" => "necklaces", "variation" => "Stainless Steel Engraved", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"],
+                       "31" => ["category" => "necklaces", "variation" => "Pendant Necklace Circular Silver", "value" => "Circular Silver", "taxonomyId" => "1229"],
+                       "52" => ["category" => "necklaces", "variation" => "Pendant Necklace Circular Gold", "value" => "Circular Gold", "taxonomyId" => "1229"],
+                       "32" => ["category" => "necklaces", "variation" => "Pendant Necklace Square Silver", "value" => "Square Silver", "taxonomyId" => "1229"],
+                       "51" => ["category" => "necklaces", "variation" => "Pendant Necklace Square Gold", "value" => "Square Gold", "taxonomyId" => "1229"],
+                       "37" => ["category" => "necklaces", "variation" => "Pendant Necklace Heart-Shaped Silver", "value" => "Heart-Shaped Silver", "taxonomyId" => "1229"],
+                       "53" => ["category" => "necklaces", "variation" => "Pendant Necklace Heart-Shaped Gold", "value" => "Heart-Shaped Gold", "taxonomyId" => "1229"],
+                       "59" => ["category" => "necklaces", "variation" => "Engraved Gold", "value" => "Gold Engraved", "taxonomyId" => "1229"],
+                       "60" => ["category" => "necklaces", "variation" => "Engraved Stainless Steel", "value" => "Stainless Steel Engraved", "taxonomyId" => "1229"],
                        "42" => ["category" => "pillowcases", "variation" => "Pillowcase", "value" => "Pillowcase", "taxonomyId" => "1925"]
                       ];
 /*

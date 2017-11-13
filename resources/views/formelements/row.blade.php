@@ -77,11 +77,12 @@
 @elseif($formitem->type == "select")
 <?php
 foreach($formitem->options as $option) {
-    // $n = strtolower($formitem->value);
-    // $h = strtolower($option->label);
-    // dump($n);
-    // dump($h);
-  // dump(strpos($h, $n));
+  //   $h = strtolower($formitem->value);
+  //   $n = strtolower($option->label);
+  //   dump($n);
+  //   dump($h);
+  //   if($n == "") continue;
+  //  dump(strpos($h, $n));
 //  dump(strtolower($formitem->value).", ".strtolower($option->value)." ".strpos(strtolower($formitem->value), strtolower($option->value)));
 //  dump(strpos("pillowcase description", "pillowcase"));
 }
@@ -92,8 +93,8 @@ foreach($formitem->options as $option) {
     <select name="{{$formitem->id}}" class="form-control"  id="{{$formitem->id}}" <?php if(isset($formitem->onchangeTarget)) echo 'onchange="setTargetValue'.$formitem->id.'(\''.$formitem->onchangeTarget.'\')"';?>>
     <?php
     foreach($formitem->options as $option) {
-      $n = strtolower($formitem->value);
-      $h = strtolower($option->label);
+      $h = strtolower($formitem->value);
+      $n = strtolower($option->label);
       if($n == "") {
         echo '<option value="'.$option->value.'">'.$option->label.'</option>';
         continue;
