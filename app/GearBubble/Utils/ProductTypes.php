@@ -11,7 +11,7 @@ class ProductTypes {
                        "45" => ["category" => "mugs", "variation" => "Color Changing Mug", "value" => "Color-changing Mug", "taxonomyId" => "1062"],
                        "62" => ["category" => "mugs", "variation" => "Travel Mug", "value" => "Travel Mug", "taxonomyId" => "1062"],
                        "44" => ["category" => "mugs", "variation" => "Metallic Mug", "value" => "11", "taxonomyId" => "1062"],
-                       "61" => ["category" => "shot_glasses", "variation" => "Shot Glass", "value" => "Shot Glass", "taxonomyId" => "1068"],
+                       "61" => ["category" => "shot glasses", "variation" => "Shot Glass", "value" => "Shot Glass", "taxonomyId" => "1068"],
                        "22" => ["category" => "shirts", "variation" => "Unisex Tee", "value" => "Unisex Tee", "taxonomyId" => "482"],
                        "28" => ["category" => "shirts", "variation" => "Women's Tee", "value" => "Women's Tee", "taxonomyId" => "559"],
                        "35" => ["category" => "shirts", "variation" => "Youth Tee", "value" => "Youth Tee", "taxonomyId" => "498"],
@@ -51,6 +51,7 @@ leggings 510
                          "leggings" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "2"],
                          "necklaces" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "1"],
                          "pillowcases" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "1"],
+                         "shot glasses" => ["scale" => "", "variationProperty" => "Style", "imageCount" => "1"],
                         ];
 
   private $colorMap = ["115" => "White",
