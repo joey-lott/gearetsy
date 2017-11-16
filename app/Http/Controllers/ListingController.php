@@ -164,14 +164,15 @@ class ListingController extends Controller
       }
       $lc = $lftlc->getListingCollection();
       for($i = 0; $i < $lc->count(); $i++) {
-        $lc->getAt($i)->saveToEtsy();
+        $response = $lc->getAt($i)->saveToEtsy();
+        if(isset($response["error"])) return view("errors.etsyerrorresponse", ["error" => $response]);
       }
 
 
       // Redirect to the starting point for listing. This does two things:
       // 1. It prevents a refresh from resubmitting and creating a duplicate listing
       // 2. It cycles the user back to list another product. This is the most common use case
-      return redirect("/listing/create")->with(["listing" => ""]);
+      return redirect("/listing/create")->with(["listing" => $request->url]);
     }
 
 /*

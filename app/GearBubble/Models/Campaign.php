@@ -29,6 +29,11 @@ class Campaign {
   }
 
   public function formatTitle($title) {
+
+    // Make sure the title starts with a letter or number
+    $title = preg_replace('/^[^a-zA-Z0-9]+(?=[a-zA-Z0-9])/', "", $title);
+
+    // Remove $ and ^ from the title because they are not allowed
     $title = preg_replace('/[\$\^]/', "", $title);
 
     // Etsy only allows one &, so remove all but the first (if there are any)

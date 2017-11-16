@@ -28,10 +28,13 @@
       </div>
     </form>
     @if(session()->has('listing'))
+      <div class="row"></div>
       <div class="alert alert-success">
         <!-- I am flashing the new listing to the session. So I can retrieve it Here
              and display it if that seems appropriate at some point in the future. -->
         Listing created successfully. Remember, it is in draft mode. You'll have to publish it through your Etsy shop manager. Go ahead and create another now.
+        <br><br>
+        Forgot which campaign you just listed? It was this one: {{session()->get('listing')}}
       </div>
     @endif
   </div>

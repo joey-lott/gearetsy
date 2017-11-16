@@ -25,6 +25,8 @@
         for(var i = 0; i < tags.length; i++) {
           tags[i] = tags[i].replace(/[^a-zA-Z0-9_ \-]/, "").trimLeft();
           if(i != tags.length-1) tags[i] = tags[i].trimRight();
+          // Prevent tags from being longer than 20 characters
+          tags[i] = tags[i].substring(0, 20);
         }
 
         input.value = tags.join(",");

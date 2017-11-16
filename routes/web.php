@@ -20,6 +20,13 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\UserAccessLevel;
 
+Route::get('/test2', function() {
+  $title = "#++^%*&^%)()__ 1234 abcde 123123";
+  $title = preg_replace('/^[^a-zA-Z0-9]+(?=[a-zA-Z0-9])/', "", $title);
+  dd($title);
+});
+
+
 Route::get('/test', function() {
   $users = User::get()->all();
   foreach($users as $user) {

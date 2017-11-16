@@ -9,6 +9,7 @@ use App\Etsy\Models\ListingOffering;
 use App\Etsy\Models\ListingInventory;
 use App\ApiCalls;
 use Illuminate\Support\Facades\Storage;
+use App\ListingThrottle;
 
 class EtsyAPI
 {
@@ -346,6 +347,9 @@ class EtsyAPI
 
       $response = $this->callOAuth("listings", $formData);
 
+      // Return the error and handle it upstream
+      if(isset($response["error"])) return $response;
+
       $listingRecord = $response["results"][0];
       $listingId = $listingRecord["listing_id"];
 
@@ -360,8 +364,11 @@ class EtsyAPI
       return $listingRecord;
     }
 
+    // Keep track of each listing a user makes.
     private function trackListingCreation() {
-      
+      $lt = new ListingThrottle();
+      $lt->user_id = auth()->user()->id;
+      $lt->save();
     }
 
     public function updateInventory($listingId, $inventory, $priceOnProperty) {
@@ -410,6 +417,7 @@ class EtsyAPI
         return $obj;
       }
       catch(\OAuthException $e) {
+        return ["params" => $params, "url" => $url, "error" => $e];
         dump("Your request produced an unhandled error. Please copy the following and send it in an email to joeylott@gmail.com with a subject line of 'GB Lightning Lister Bug Report'. Thank you.");
         dump($url);
         dump($params);

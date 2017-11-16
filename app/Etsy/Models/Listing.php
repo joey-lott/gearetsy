@@ -48,6 +48,11 @@ class Listing {
     $api = resolve("\App\Etsy\EtsyAPI");
     $listing = $api->createListing($this);
 
+    // If "error" is set in the response, it means there was an error
+    // thrown by Etsy. In which case, $listing is an array with error
+    // information. Return it now and don't try to add inventory.
+    if(isset($listing["error"])) return $listing;
+
     if($this->staging->hasProducts()) {
       $this->inventory = $this->createListingInventory($listing["listing_id"]);
       $this->inventory->saveToEtsy();
