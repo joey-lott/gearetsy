@@ -355,7 +355,13 @@ class EtsyAPI
         }
       }
 
+      $this->trackListingCreation();
+
       return $listingRecord;
+    }
+
+    private function trackListingCreation() {
+      
     }
 
     public function updateInventory($listingId, $inventory, $priceOnProperty) {
@@ -413,9 +419,12 @@ class EtsyAPI
 
     // Record the API call in the database
     private function recordCall($name) {
-        $ac = new APICalls();
-        $ac->name = $name;
-        $ac->save();
+      // Commented out for now because I don't want to record this information
+      // and take up database space at the moment. But this does work, and
+      // I can uncomment it later if I want to record this information.
+        // $ac = new APICalls();
+        // $ac->name = $name;
+        // $ac->save();
     }
 
 }

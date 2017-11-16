@@ -17,8 +17,18 @@ Auth::routes();
 
 use Goutte\Client;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\UserAccessLevel;
 
 Route::get('/test', function() {
+  $users = User::get()->all();
+  foreach($users as $user) {
+    $access = new UserAccessLevel();
+    $access->user_id = $user->id;
+    $access->access_level = "unlimited";
+    $access->save();
+  }
+  dd("done");
   $title = "Demo Shirt - Multiple Styles - Gifts Under 50! - _ - Get the Shirt && :: - 50% off! - 50% off regular price! - This is a really long title";
   $titleChunks = explode("&", $title);
   if(count($titleChunks) > 1) {

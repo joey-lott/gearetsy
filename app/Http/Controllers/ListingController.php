@@ -17,6 +17,9 @@ use App\Etsy\Models\Listing;
 use App\GearBubble\Models\PrimaryVariationTaxonomyGroup;
 use App\GearBubble\Utils\ListingsFormToListingCollection;
 use App\Etsy\Models\ShippingTemplate;
+use App\ListingThrottle;
+use Carbon\Carbon;
+use App\UserAccessLevel;
 
 class ListingController extends Controller
 {
@@ -27,63 +30,26 @@ class ListingController extends Controller
     }
 
     public function create(Request $request) {
+
+      // First, clear all previous throttle logs to keep the database clean
+      ListingThrottle::clearAllPreviousDays(auth()->user()->id, Carbon::today());
+      // Get the count of all today's listings for this user.
+      $throttles = ListingThrottle::where("user_id", auth()->user()->id)->where("created_at", ">=", Carbon::today())->count();
+
+      $userAccess = UserAccessLevel::hasUnlimitedAccess(auth()->user()->id);
+
+      // If the user has restricted access and has reached the daily limit, don't allow
+      // any more listings until tomorrow.
+      if($throttles >= env("MAX_LISTINGS_PER_DAY") && !$userAccess) {
+        return view("reacheddailylimit");
+      }
+
       $templates = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
       if($templates->count() == 0) {
         return view("errors.notemplates");
       }
       return view("shop.gburlform", ["debug" => $request->debug]);
     }
-
-/* no longer needed
-    // Once the user has input a GB URL, scrape the GB campaign page and display
-    // the results to the user. Prompt the user to confirm that this is the correct
-    // campaign information, and require that he fill out a few other fields
-    // such as tags, description, etc.
-    public function confirm() {
-
-      // If the url is passed through the form, use that value. But in the case
-      // of a failed validation, the user will be redirected back here. In that case
-      // the url is flashed to the session.
-      if(!isset(request()->url)) {
-        $url = session('url');
-      }
-      else {
-        $url = request()->url;
-      }
-
-      // Use a page scraper to gather the information from the GB campaign page.
-      $scraper = new PageScraper($url);
-
-      // The scrape() method returns a boolean indicating whether it was successful in scraping the campaign
-      if($scraper->scrape()) {
-
-        // The results come back as an array of the campaign data scraped.
-        $campaign = $scraper->getCampaign();
-
-        $api = resolve("\App\Etsy\EtsyAPI");
-
-        // Get the shipping templates for this user.
-        $shippingTemplates = $api->fetchShippingTemplates(auth()->user()->etsyUserId);
-
-        $results = ["campaign" => $campaign];
-
-        // Insert the shipping templates into the results to pass along to the view.
-        $results["shippingTemplates"] = $shippingTemplates;
-
-        $descriptions = Description::where("user_id", auth()->user()->id)->get()->all();
-        $results["descriptions"] = $descriptions;
-
-        $taxonomies = $this->taxonomize($campaign->primaryVariations, $campaign);
-        $results["taxonomies"] = $taxonomies;
-
-        return view("shop.listingconfirm", $results);
-      }
-      else {
-        $error = "The URL you provided is not a valid campaign or GearBubble is currently inaccessible.";
-        return redirect("/listing/create")->withErrors(["error" => $error]);
-      }
-    }
-*/
 
     public function confirmNew(Request $request) {
 
