@@ -18,6 +18,14 @@
         Notice: We've detected that this GB campaign contains variations that will work best on Etsy as distinct listings due to Etsy categorization. We've split them up here for you.
       </div>
     @endif
+    <div class="row">
+      <form method="POST" action="/listing/confirm">
+        {{csrf_field()}}
+        <input type="hidden" name="url" value="{{$url}}">
+        <input type="hidden" name="forceOnePrimaryVariationPerListing" value="true">
+        <button class="btn btn-default">force one product style per listing</button>
+      </form>
+    </div>
 
     <form action="/listing/submit" method="post" id="listingForm">
     {{csrf_field()}}

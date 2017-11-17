@@ -67,9 +67,9 @@ class Campaign {
   }
 
   // Convert the GB campaign to Etsy listings and put in a collection
-  public function getListingCollection() {
+  public function getListingCollection($forceOnePrimaryVariationPerListing = false) {
     $this->campaignToListingCollection = new CampaignToListingCollection($this);
-    return $this->campaignToListingCollection->getListingCollection();
+    return $this->campaignToListingCollection->getListingCollection($forceOnePrimaryVariationPerListing);
   }
 
   public function mustBeSplitIntoOnePrimaryVariationPerListing() {
@@ -79,9 +79,9 @@ class Campaign {
        count($this->sizes) > 1);
   }
 
-  public function getFormFieldCollection() {
-    if(!isset($this->campaignToListingCollection)) $this->getListingCollection();
-    return $this->campaignToListingCollection->getFormFieldCollection();
+  public function getFormFieldCollection($forceOnePrimaryVariationPerListing = false) {
+    if(!isset($this->campaignToListingCollection)) $this->getListingCollection($forceOnePrimaryVariationPerListing);
+    return $this->campaignToListingCollection->getFormFieldCollection($forceOnePrimaryVariationPerListing);
   }
 
   public function downloadImagesAndMakeThumbnails() {

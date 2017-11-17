@@ -58,6 +58,8 @@ class ListingController extends Controller
         resolve("\App\DebugFlag")->debug = true;
       }
 
+      $forceOnePrimaryVariationPerListing = isset($request->forceOnePrimaryVariationPerListing) ? $request->forceOnePrimaryVariationPerListing === "true" : false;
+
       // If the url is passed through the form, use that value. But in the case
       // of a failed validation, the user will be redirected back here. In that case
       // the url is flashed to the session.
@@ -76,7 +78,7 @@ class ListingController extends Controller
         $c = $ps->getCampaign();
 
         // Convert the campaign to a form field collection. This may result in one or more listings.
-        $lfgc = $c->getFormFieldCollection();
+        $lfgc = $c->getFormFieldCollection($forceOnePrimaryVariationPerListing);
 
         // Get the title, then convert it to unique keywords to use as default keywords
         $title = $c->title;

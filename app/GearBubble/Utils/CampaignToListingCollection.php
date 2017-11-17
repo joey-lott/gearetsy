@@ -30,10 +30,10 @@ class CampaignToListingCollection {
       $this->shippingTemplates = ShippingTemplate::getAllShippingTemplatesForUser(auth()->user()->etsyUserId);
   }
 
-  public function getListingCollection() {
+  public function getListingCollection($forceOnePrimaryVariationPerListing = false) {
     if(isset($this->listingCollection)) return $this->listingCollection;
 
-    $tgs = $this->splitIntoListingGroups();
+    $tgs = $this->splitIntoListingGroups($forceOnePrimaryVariationPerListing);
     $lc = $this->convertTaxonomyGroupsToListingCollection($tgs);
 
     $this->listingCollection = $lc;
@@ -46,12 +46,12 @@ class CampaignToListingCollection {
   // However, Etsy limits the number of property values per listing product to two.
   // Therefore, if the campaign has primary variations, colors, and sizes, split
   // into listings with one primary variation per listing.
-  private function splitIntoListingGroups() {
+  private function splitIntoListingGroups($forceOnePrimaryVariationPerListing = false) {
     $pt = new ProductTypes();
 
     // Does this campaign need to be split such that there is only one
     // primary variation per listing?
-    $onePVPerListing = $this->campaign->mustBeSplitIntoOnePrimaryVariationPerListing();
+    $onePVPerListing = $forceOnePrimaryVariationPerListing ? true : $this->campaign->mustBeSplitIntoOnePrimaryVariationPerListing();
 
     $tids = [];
     foreach($this->campaign->primaryVariations as $primaryVariation) {
@@ -229,8 +229,8 @@ class CampaignToListingCollection {
     return $etsy;
   }
 
-  public function getFormFieldCollection() {
-    $c = $this->getListingCollection();
+  public function getFormFieldCollection($forceOnePrimaryVariationPerListing = false) {
+    $c = $this->getListingCollection($forceOnePrimaryVariationPerListing);
     $ffc = new ListingFormGroupCollection();
     for($i = 0; $i < $c->count(); $i++) {
       $listing = $c->getAt($i);
