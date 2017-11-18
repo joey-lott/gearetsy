@@ -13,7 +13,7 @@ class Listing {
   public $price;
   public $taxonomy_id;
   public $tags;
-  public $who_made = "someone_else";
+  public $who_made = "collective";
   public $when_made = "made_to_order";
   public $state = "draft";
   public $is_supply = "false";
