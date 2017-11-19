@@ -311,6 +311,11 @@ class EtsyAPI
       // Use the __SELF__ token that Etsy supports to retrieve the shop for the current user.
       // This requires OAuth to work even though otherwise the endpoint does not require OAuth.
       $response = $this->callOAuth("users/__SELF__/shops", null, OAUTH_HTTP_METHOD_GET);
+      if(isset($response["error"])) {
+        dump("There was an unhandled error. Please send the following to joeylott@gmail.com so I can know about this problem.");
+        dump($response);
+      }
+
       return $response["results"][0];
     }
 
