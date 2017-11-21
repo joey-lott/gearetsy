@@ -18,6 +18,9 @@
       <a href="/description">Product descriptions</a>
     </div>
     <div>
+      <a href="/listing/update/whomade">Update "who made it" and publish drafts</a>
+    </div>
+    <div>
       &nbsp;
     </div>
     <div><h3>Get Help</h3></div>

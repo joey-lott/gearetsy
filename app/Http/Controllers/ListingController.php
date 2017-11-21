@@ -139,6 +139,37 @@ class ListingController extends Controller
       }
     }
 
+    public function confirmWhoMadeUpdate() {
+      $shopId = auth()->user()->shopId;
+      $api = resolve("\App\Etsy\EtsyAPI");
+      $response = $api->fetchAllDrafts($shopId);
+      $drafts = $response["results"];
+      $total = $response["count"];
+      $maxToPublish = $total < 25 ? $total : 25;
+      $costToPublish = $maxToPublish * 0.2;
+      return view("shop.confirmupdatewhomade", ["total" => $total, "maxToPublish" => $maxToPublish, "costToPublish" => $costToPublish]);
+    }
+
+    public function updateWhoMade() {
+       $shopId = auth()->user()->shopId;
+       $api = resolve("\App\Etsy\EtsyAPI");
+       $response = $api->fetchAllDrafts($shopId);
+       $drafts = $response["results"];
+       $successCount = 0;
+       $failCount = 0;
+       foreach($drafts as $draft) {
+          $updateResponse = $api->updateWhoMadeOnDraft($draft["listing_id"], "someone_else");
+          if(isset($updateResponse["error"])) {
+            $failCount++;
+          }
+          else {
+            $successCount++;
+          }
+       }
+       $remaining = $response["count"] - $successCount;
+       $remaining = $remaining > 0 ? $remaining : 0;
+       return view("shop.updatedwhomade", ["count" => $successCount, "failCount" => $failCount, "total" => $response["count"], "remaining" => $remaining]);
+    }
 /*
     // Group the variations by taxonomy. For example, 11 oz and 15 oz mugs have the same taxonomy.
     // But different shirts have different taxonomies (eg. hoodies and t-shirts)

@@ -315,7 +315,10 @@ class EtsyAPI
         dump("There was an unhandled error. Please send the following to joeylott@gmail.com so I can know about this problem.");
         dump($response);
       }
-
+      if(count($response["results"]) == 0) {
+        dump("It appears that your Etsy shop is new and does not have any listings. In order to use the app, you must create at least one listing manually through your Etsy shop manager. If you believe that you have received this message in error or if you are having problems, send an email to joeylott@gmail.com with the subject line 'Lightning Lister - no shop error' and include the following in your message");
+        dd($response);
+      }
       return $response["results"][0];
     }
 
@@ -380,6 +383,16 @@ class EtsyAPI
       $this->recordCall("updateInventory");
       $formData = ["products" => $inventory, "price_on_property" => $priceOnProperty];
       return $this->callOAuth("listings/".$listingId."/inventory", $formData, OAUTH_HTTP_METHOD_PUT);
+    }
+
+    public function fetchAllDrafts($shopId) {
+      $formData = [];//["limit" => 25];
+      return $this->callOAuth("shops/".$shopId."/listings/draft", $formData, OAUTH_HTTP_METHOD_GET);
+    }
+
+    public function updateWhoMadeOnDraft($listingId, $whoMade = "someone_else") {
+      $formData = ["who_made" => $whoMade];
+      return $this->callOAuth("listings/".$listingId, $formData, OAUTH_HTTP_METHOD_PUT);
     }
 
     public function fetchUser($login) {

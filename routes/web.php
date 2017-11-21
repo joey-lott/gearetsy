@@ -89,6 +89,8 @@ Route::get('/listing/create', 'ListingController@create');
 Route::get('/listing/confirm', 'ListingController@confirmNew');
 Route::post('/listing/confirm', 'ListingController@confirmNew');
 Route::post('/listing/submit', 'ListingController@submit');
+Route::get('/listing/update/whomade', 'ListingController@confirmWhoMadeUpdate');
+Route::post('/listing/update/whomade', 'ListingController@updateWhoMade');
 
 Route::get('shippingtemplate/deletecache', 'ShippingTemplateController@deleteCachedTemplateFile');
 // Route::get('shippingtemplate/create', 'ShippingTemplateController@create');
