@@ -26,15 +26,21 @@ Route::get('/test2', function() {
   dd($title);
 });
 
+Route::get('setAllUnlimited', function() {
+  // Uncomment only if you want to enable this feature. This is a
+  // feature meant for very limited use. In general, it should be
+  // left commented.
+    // $users = User::get()->all();
+    // foreach($users as $user) {
+    //   $access = new UserAccessLevel();
+    //   $access->user_id = $user->id;
+    //   $access->access_level = "unlimited";
+    //   $access->save();
+    // }
+    dd("done");
+});
 
 Route::get('/test', function() {
-  $users = User::get()->all();
-  foreach($users as $user) {
-    $access = new UserAccessLevel();
-    $access->user_id = $user->id;
-    $access->access_level = "unlimited";
-    $access->save();
-  }
   dd("done");
   $title = "Demo Shirt - Multiple Styles - Gifts Under 50! - _ - Get the Shirt && :: - 50% off! - 50% off regular price! - This is a really long title";
   $titleChunks = explode("&", $title);
